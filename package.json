@@ -1,0 +1,19 @@
+{
+  "name": "patient-care-aggregator-reporting",
+  "version": "0.0.1",
+  "description": "OAS (Swagger v3) API Definition for Template API",
+  "scripts": {
+    "lint": "node_modules/.bin/openapi-generator-cli validate -i specification/patient-care-aggregator-reporting.yaml",
+    "publish": "./node_modules/.bin/openapi-generator-cli generate -i specification/patient-care-aggregator-reporting.yaml --generator-key v3.0  -g openapi -o build && rm openapitools.json && mv build/openapi.json build/patient-care-aggregator-reporting.json",
+    "check-licenses": "node_modules/.bin/license-checker --failOn GPL --failOn LGPL"
+  },
+  "author": "NHS Digital",
+  "license": "MIT",
+  "homepage": "https://github.com/NHSDigital/patient-care-aggregator-reporting",
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.5.1",
+    "apigeetool": "^0.5.4",
+    "license-checker": "^25.0.1",
+    "minimist": "^1.2.2"
+  }
+}

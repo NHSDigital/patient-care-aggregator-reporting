@@ -1,0 +1,8 @@
+variables:
+  - group: status-endpoint
+  - name: service_name
+    value: patient-care-aggregator-reporting
+  - name: short_service_name
+    value: pcar
+  - name: service_base_path
+    value: patient-care-aggregator-reporting

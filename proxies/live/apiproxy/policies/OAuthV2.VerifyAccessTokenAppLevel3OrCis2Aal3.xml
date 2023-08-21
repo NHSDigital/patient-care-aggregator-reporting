@@ -1,0 +1,4 @@
+<OAuthV2 async="false" continueOnError="false" enabled="true" name="OauthV2.VerifyAccessTokenAppLevel3OrCis2Aal3">
+  <Operation>VerifyAccessToken</Operation>
+  <Scopes>urn:nhsd:apim:app:level3:patient-care-aggregator-reporting urn:nhsd:apim:user-nhs-cis2:aal3:patient-care-aggregator-reporting</Scopes>
+</OAuthV2>

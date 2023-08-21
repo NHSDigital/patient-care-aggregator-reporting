@@ -1,0 +1,46 @@
+# This is an OpenAPI Specification (https://swagger.io/specification/)
+# for patient-care-aggregator-reporting owned by NHS Digital (https://digital.nhs.uk/)
+openapi: '3.0.0'
+info:
+  title: 'patient-care-aggregator-reporting'
+  version: 'Computed and injected at build time by `scripts/set_version.py`'
+  description: |
+    ## Overview
+    Add a fully fledged description here with markdown syntax.
+    For help completing the content of your API spec, see [our guidance](https://nhsd-confluence.digital.nhs.uk/display/APM/Documenting+your+API).
+    You should also base your content on our exemplar API - [PDS FHIR](https://digital.nhs.uk/developer/api-catalogue/personal-demographics-service-fhir).
+    ## Who can use this API
+    To be completed.
+    ## Related APIs
+    To be completed.
+    ## API status and roadmap
+    To be completed.
+    ## Service level
+    To be completed.
+    ## Technology
+    To be completed.
+    ### Open source
+    To be completed.
+    ## Network access
+    To be completed.
+    ## Security and authorisation
+    To be completed.
+    ## Environments and testing
+    To be completed.
+    ## Onboarding
+    To be completed.
+    ## Errors
+    To be completed.
+    
+  contact:
+    name: 'patient-care-aggregator-reporting API Support'
+    url: 'https://digital.nhs.uk/developer/help-and-support'
+    email: api.management@nhs.net
+servers:
+  - url: 'https://sandbox.api.service.nhs.uk/patient-care-aggregator-reporting'
+    description: Sandbox environment.
+  - url: 'https://int.api.service.nhs.uk/patient-care-aggregator-reporting'
+    description: Integration test environment.
+  - url: 'https://api.service.nhs.uk/patient-care-aggregator-reporting'
+    description: Production environment.
+paths: {}
