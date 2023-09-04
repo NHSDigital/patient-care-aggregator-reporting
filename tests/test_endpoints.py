@@ -107,12 +107,14 @@ class TestEndpoints:
             data={
                 "grant_type": "client_credentials",
                 "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-                "clientId": "wcissOGs8C3Y1Js6qDD3zhJf9SuhwrG4",
+                "clientId": test_app.client_id,
                 "client_assertion": client_assertion,
                 "header": additional_headers,
                 "algorithm": "RS512"
             }
         )
+
+        print(f'Auth server response: {resp.json()}')
 
         return resp.json()["access_token"]
 
