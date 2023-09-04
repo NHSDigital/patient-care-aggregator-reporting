@@ -15,7 +15,7 @@ class TestEndpoints:
 
     @pytest.fixture()
     async def test_app_and_product(self):
-        """Create a fresh test app and product consuming the patient-care-agregator-api proxy
+        """Create a fresh test app and product consuming the patient-care-aggregator-reporting proxy
         The app and products are destroyed at the end of the test
         """
         print("\nCreating Default App and Product..")
@@ -25,7 +25,7 @@ class TestEndpoints:
             [config.PROXY_NAME, f"identity-service-{config.ENVIRONMENT}"]
         )
         await apigee_product.update_scopes(
-            ["urn:nhsd:apim:user-nhs-login:P9:patient-care-aggregator-api"]
+            ["urn:nhsd:apim:user-nhs-login:P9:patient-care-aggregator-reporting"]
         )
         # Product ratelimit
         product_ratelimit = {
