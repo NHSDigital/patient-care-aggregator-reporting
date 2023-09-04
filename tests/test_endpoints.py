@@ -1,80 +1,128 @@
-"""
-See
-https://github.com/NHSDigital/pytest-nhsd-apim/blob/main/tests/test_examples.py
-for more ideas on how to test the authorization of your API.
-"""
-import requests
 import pytest
-from os import getenv
+from api_test_utils.apigee_api_apps import ApigeeApiDeveloperApps
+from api_test_utils.apigee_api_products import ApigeeApiProducts
+import uuid
+from time import time
+import jwt
+import requests
+from .configuration import config
+import json
+
+SESSION = requests.Session()
 
 
-@pytest.mark.smoketest
-def test_ping(nhsd_apim_proxy_url):
-    resp = requests.get(f"{nhsd_apim_proxy_url}/_ping")
-    assert resp.status_code == 200
+class TestEndpoints:
 
+    @pytest.fixture()
+    async def test_app_and_product(self):
+        """Create a fresh test app and product consuming the patient-care-agregator-api proxy
+        The app and products are destroyed at the end of the test
+        """
+        print("\nCreating Default App and Product..")
+        apigee_product = ApigeeApiProducts()
+        await apigee_product.create_new_product()
+        await apigee_product.update_proxies(
+            [config.PROXY_NAME, f"identity-service-{config.ENVIRONMENT}"]
+        )
+        await apigee_product.update_scopes(
+            ["urn:nhsd:apim:user-nhs-login:P9:patient-care-aggregator-api"]
+        )
+        # Product ratelimit
+        product_ratelimit = {
+            f"{config.PROXY_NAME}": {
+                "quota": {
+                    "limit": "300",
+                    "enabled": True,
+                    "interval": 1,
+                    "timeunit": "minute",
+                },
+                "spikeArrest": {"ratelimit": "100ps", "enabled": True},
+            }
+        }
+        await apigee_product.update_attributes({"ratelimiting": json.dumps(product_ratelimit)})
 
-@pytest.mark.smoketest
-def test_wait_for_ping(nhsd_apim_proxy_url):
-    retries = 0
-    resp = requests.get(f"{nhsd_apim_proxy_url}/_ping")
-    deployed_commitId = resp.json().get("commitId")
+        await apigee_product.update_environments([config.ENVIRONMENT])
 
-    while (deployed_commitId != getenv('SOURCE_COMMIT_ID')
-            and retries <= 30
-            and resp.status_code == 200):
-        resp = requests.get(f"{nhsd_apim_proxy_url}/_ping")
-        deployed_commitId = resp.json().get("commitId")
-        retries += 1
+        apigee_app = ApigeeApiDeveloperApps()
+        await apigee_app.create_new_app()
 
-    if resp.status_code != 200:
-        pytest.fail(f"Status code {resp.status_code}, expecting 200")
-    elif retries >= 30:
-        pytest.fail("Timeout Error - max retries")
+        # Set default JWT Testing resource url and app ratelimit
+        app_ratelimit = {
+            f"{config.PROXY_NAME}": {
+                "quota": {
+                    "limit": "300",
+                    "enabled": True,
+                    "interval": 1,
+                    "timeunit": "minute",
+                },
+                "spikeArrest": {"ratelimit": "100ps", "enabled": True},
+            }
+        }
+        await apigee_app.set_custom_attributes(
+            {
+                "jwks-resource-url": "https://raw.githubusercontent.com/NHSDigital/"
+                "identity-service-jwks/main/jwks/internal-dev/"
+                "9baed6f4-1361-4a8e-8531-1f8426e3aba8.json",
+                "ratelimiting": json.dumps(app_ratelimit),
+            }
+        )
 
-    assert deployed_commitId == getenv('SOURCE_COMMIT_ID')
+        await apigee_app.add_api_product(api_products=[apigee_product.name])
 
+        yield apigee_product, apigee_app
 
-@pytest.mark.smoketest
-def test_status(nhsd_apim_proxy_url, status_endpoint_auth_headers):
-    resp = requests.get(
-        f"{nhsd_apim_proxy_url}/_status", headers=status_endpoint_auth_headers
-    )
-    assert resp.status_code == 200
-    # Make some additional assertions about your status response here!
+        # Teardown
+        print("\nDestroying Default App and Product..")
+        await apigee_app.destroy_app()
+        await apigee_product.destroy_product()
 
+    @pytest.fixture()
+    async def get_token(self, test_app_and_product):
+        test_product, test_app = test_app_and_product
 
-@pytest.mark.smoketest
-def test_wait_for_status(nhsd_apim_proxy_url, status_endpoint_auth_headers):
-    retries = 0
-    resp = requests.get(f"{nhsd_apim_proxy_url}/_status", headers=status_endpoint_auth_headers)
-    deployed_commitId = resp.json().get("commitId")
+        """Call identity server to get an access token"""
 
-    while (deployed_commitId != getenv('SOURCE_COMMIT_ID')
-            and retries <= 30
-            and resp.status_code == 200
-            and resp.json().get("version")):
-        resp = requests.get(f"{nhsd_apim_proxy_url}/_status", headers=status_endpoint_auth_headers)
-        deployed_commitId = resp.json().get("commitId")
-        retries += 1
+        # Create jwt for client assertion (APIM-authentication)
+        client_assertion_private_key = config.ENV["client_assertion_private_key"]
+        with open(client_assertion_private_key, "r") as f:
+            private_key = f.read()
+        url = "https://internal-dev.api.service.nhs.uk/oauth2/token"
+        claims = {
+            "sub": test_app.client_id,  # TODO:save this on secrets manager or create app on the fly
+            "iss": test_app.client_id,
+            "jti": str(uuid.uuid4()),
+            "aud": url,
+            "exp": int(time()) + 300,  # 5mins in the future
+        }
 
-    if resp.status_code != 200:
-        pytest.fail(f"Status code {resp.status_code}, expecting 200")
-    elif retries >= 30:
-        pytest.fail("Timeout Error - max retries")
-    elif not resp.json().get("version"):
-        pytest.fail("version not found")
+        additional_headers = {"kid": "test-1"}
+        client_assertion = jwt.encode(
+            claims, private_key, algorithm="RS512", headers=additional_headers
+        )
 
-    assert deployed_commitId == getenv('SOURCE_COMMIT_ID')
+        # Get token using token client credentials with signed JWT
+        resp = SESSION.post(
+        url,
+        headers={"foo": "bar"},
+        data={
+            "grant_type": "client_credentials",
+            "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+            "clientId": "wcissOGs8C3Y1Js6qDD3zhJf9SuhwrG4",
+            "client_assertion": client_assertion,
+            "header": additional_headers,
+            "algorithm": "RS512"
+            }
+        )
 
+        return resp.json()["access_token"]
 
-@pytest.mark.nhsd_apim_authorization({"access": "application", "level": "level0"})
-def test_app_level0(nhsd_apim_proxy_url, nhsd_apim_auth_headers):
-    resp = requests.get(f"{nhsd_apim_proxy_url}", headers=nhsd_apim_auth_headers)
-    assert resp.status_code == 401  # unauthorized
-
-
-@pytest.mark.nhsd_apim_authorization({"access": "application", "level": "level3"})
-def test_app_level3(nhsd_apim_proxy_url, nhsd_apim_auth_headers):
-    resp = requests.get(f"{nhsd_apim_proxy_url}", headers=nhsd_apim_auth_headers)
-    assert resp.status_code == 200
+    def test_happy_path(self, get_token):
+        # Given I have a token
+        token = get_token
+        expected_status_code = 200
+        proxy_url = f"https://internal-dev.api.service.nhs.uk/{config.ENV['base_path']}/status"
+        # When calling the proxy
+        headers = {"Authorization": f"Bearer {token}"}
+        resp = SESSION.get(url=proxy_url, headers=headers)
+        # Then
+        assert resp.status_code == expected_status_code
