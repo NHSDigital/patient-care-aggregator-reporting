@@ -1,4 +1,4 @@
-<TargetEndpoint name="patient-care-aggregator-api-reporting-target">
+<TargetEndpoint name="patient-care-aggregator-reporting-target">
   <PreFlow>
     <Request>
       <Step>
