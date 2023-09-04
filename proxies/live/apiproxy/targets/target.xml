@@ -5,9 +5,6 @@
         <Name>OauthV2.VerifyAccessToken</Name>
       </Step>
       <Step>
-          <Name>AssignMessage.AddIdTokenHeader</Name>
-      </Step>
-      <Step>
         <Name>FlowCallout.ApplyRateLimiting</Name>
       </Step>
     </Request>
