@@ -25,7 +25,7 @@ class TestEndpoints:
             [config.PROXY_NAME, f"identity-service-{config.ENVIRONMENT}"]
         )
         await apigee_product.update_scopes(
-            ["urn:nhsd:apim:user-nhs-login:P9:patient-care-aggregator-reporting"]
+            ["urn:nhsd:apim:app:level3:patient-care-aggregator-reporting"]
         )
         # Product ratelimit
         product_ratelimit = {
