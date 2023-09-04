@@ -102,15 +102,15 @@ class TestEndpoints:
 
         # Get token using token client credentials with signed JWT
         resp = SESSION.post(
-        url,
-        headers={"foo": "bar"},
-        data={
-            "grant_type": "client_credentials",
-            "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-            "clientId": "wcissOGs8C3Y1Js6qDD3zhJf9SuhwrG4",
-            "client_assertion": client_assertion,
-            "header": additional_headers,
-            "algorithm": "RS512"
+            url,
+            headers={"foo": "bar"},
+            data={
+                "grant_type": "client_credentials",
+                "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                "clientId": "wcissOGs8C3Y1Js6qDD3zhJf9SuhwrG4",
+                "client_assertion": client_assertion,
+                "header": additional_headers,
+                "algorithm": "RS512"
             }
         )
 
