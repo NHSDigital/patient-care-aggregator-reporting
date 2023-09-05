@@ -1,4 +1,4 @@
 <OAuthV2 async="false" continueOnError="false" enabled="true" name="OauthV2.VerifyAccessToken">
   <Operation>VerifyAccessToken</Operation>
-  <Scope>urn:nhsd:apim:user-nhs-login:P9:patient-care-aggregator-api</Scope>
+  <Scope>urn:nhsd:apim:user-nhs-login:P9:patient-care-aggregator-reporting</Scope>
 </OAuthV2>
