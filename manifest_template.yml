@@ -76,7 +76,7 @@ apigee:
 {% endif %}
         scopes:
           - 'urn:nhsd:apim:app:level3:{{ SERVICE_NAME }}'
-          - 'urn:nhsd:apim:user-nhs-cis2:aal3:{{ SERVICE_NAME }}'
+          - 'urn:nhsd:apim:user-nhs-login:P9:{{ SERVICE_NAME }}'
     specs:
       - name: {{ NAME }}
         path: {{ SERVICE_NAME }}.json
