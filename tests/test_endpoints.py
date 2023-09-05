@@ -123,8 +123,10 @@ class TestEndpoints:
         token = get_token
         expected_status_code = 200
         proxy_url = f"https://internal-dev.api.service.nhs.uk/{config.ENV['base_path']}/status"
+        print(f'Proxy URL: {proxy_url}')
         # When calling the proxy
         headers = {"Authorization": f"Bearer {token}"}
         resp = SESSION.get(url=proxy_url, headers=headers)
+        print(f'Proxy response: {resp.json()}')
         # Then
         assert resp.status_code == expected_status_code
