@@ -138,7 +138,7 @@ class TestEndpoints:
                 "AppointmentId": "apim-unit-test"
             }
         ]
-        resp = SESSION.post(url=proxy_url, headers=headers, data=payload)
+        resp = SESSION.post(url=proxy_url, headers=headers, json=json.dumps(payload))
         print(f'Proxy response: {resp.json()}')
         # Then
         assert resp.status_code == expected_status_code
