@@ -122,11 +122,23 @@ class TestEndpoints:
         # Given I have a token
         token = get_token
         expected_status_code = 200
-        proxy_url = f"https://internal-dev.api.service.nhs.uk/{config.ENV['base_path']}/status"
+        proxy_url = f"https://internal-dev.api.service.nhs.uk/{config.ENV['base_path']}"
         print(f'Proxy URL: {proxy_url}')
         # When calling the proxy
-        headers = {"Authorization": f"Bearer {token}"}
-        resp = SESSION.get(url=proxy_url, headers=headers)
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "X-Correlation-ID": "apim-unit-test",
+            "client-id": "apim-unit-test"
+        }
+        payload = [
+            {
+                "EventCode": "APPT-VIEW",
+                "Timestamp": "2023-08-22T11:00:00+00:00",
+                "SessionId": "apim-unit-test",
+                "AppointmentId": "apim-unit-test"
+            }
+        ]
+        resp = SESSION.post(url=proxy_url, headers=headers, data=payload)
         print(f'Proxy response: {resp.json()}')
         # Then
         assert resp.status_code == expected_status_code
