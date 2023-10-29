@@ -1,5 +1,6 @@
 # This is an OpenAPI Specification (https://swagger.io/specification/)
 # for patient-care-aggregator-reporting owned by NHS Digital (https://digital.nhs.uk/)
+
 openapi: '3.0.0'
 info:
   title: 'patient-care-aggregator-reporting'
