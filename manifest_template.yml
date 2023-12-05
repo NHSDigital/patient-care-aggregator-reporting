@@ -4,7 +4,6 @@ DESCRIPTION: example description
 APIGEE_ENVIRONMENTS:
   - name: internal-dev
     display_name: Internal Development
-    has_mock_auth: true
   # - name: internal-qa
   #   display_name: Internal QA
   #   has_mock_auth: true 
