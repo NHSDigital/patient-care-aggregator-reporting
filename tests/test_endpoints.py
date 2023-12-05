@@ -119,7 +119,7 @@ class TestEndpoints:
         return resp.json()["access_token"]
 
     def test_happy_path(self, get_token):
-        # Given I have a token
+        # Given I have a token 
         token = get_token
         expected_status_code = 200
         proxy_url = f"https://internal-dev.api.service.nhs.uk/{config.ENV['base_path']}"
