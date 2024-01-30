@@ -11,7 +11,7 @@ authors = [
 readme = 'README.md'
 license = "MIT"
 repository = "https://github.com/NHSDigital/patient-care-aggregator-reporting"
-homepage = "https://digital.nhs.uk/developer/api-catalogue"
+homepage = "https://int.api.service.nhs.uk/patient-care-aggregator-reporting
 keywords = ["healthcare", "uk", "nhs"] #TODO add additional keywords
 
 [tool.poetry.dependencies]
