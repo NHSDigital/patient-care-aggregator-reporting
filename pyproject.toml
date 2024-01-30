@@ -1,3 +1,4 @@
+homepage = "https://www.fakehomepage.com"
 [project]
 python = "^3.8"
 
@@ -11,7 +12,7 @@ authors = [
 readme = 'README.md'
 license = "MIT"
 repository = "https://github.com/NHSDigital/patient-care-aggregator-reporting"
-homepage = "https://www.fakehomepage.com"
+
 keywords = ["healthcare", "uk", "nhs"] #TODO add additional keywords
 
 [tool.poetry.dependencies]
