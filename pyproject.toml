@@ -13,7 +13,7 @@ license = "MIT"
 repository = "https://github.com/NHSDigital/patient-care-aggregator-reporting"
 homepage = ""
 keywords = ["healthcare", "uk", "nhs"] #TODO add additional keywords
-data.homepage = "https://www.fakehomepage.com"
+homepage = "https://www.fakehomepage.com"
 
 [tool.poetry.dependencies]
 python = "^3.8"
