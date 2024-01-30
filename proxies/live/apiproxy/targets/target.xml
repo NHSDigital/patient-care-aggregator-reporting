@@ -1,16 +1,16 @@
 <TargetEndpoint name="patient-care-aggregator-reporting-target">
   <PreFlow>
     <Request>
-      <!-- <Step>
+      <Step>
         <Name>OauthV2.VerifyAccessTokenAppLevel3OrCis2Aal3</Name>
         <Condition>request.header.apikey = null</Condition>
       </Step>
       <Step>
         <Name>VerifyApiKey.FromHeader</Name>
         <Condition>request.header.apikey != null</Condition>
-    </Step> -->
+    </Step>
     <Step>
-      <Name>VerifyApiKey.FromHeader</Name>
+      <Name>OauthV2.VerifyAccessTokenAppLevel3OrCis2Aal3</Name>
     </Step>
     <Step>
       <Name>FlowCallout.ApplyRateLimiting</Name>

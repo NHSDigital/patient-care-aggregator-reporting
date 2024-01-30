@@ -12,6 +12,7 @@ readme = 'README.md'
 license = "MIT"
 repository = "https://github.com/NHSDigital/patient-care-aggregator-reporting"
 keywords = ["healthcare", "uk", "nhs"] #TODO add additional keywords
+homepage = "https://internal-dev.api.service.nhs.uk/patient-care-aggregator-reporting"
 
 [tool.poetry.dependencies]
 python = "^3.8"
