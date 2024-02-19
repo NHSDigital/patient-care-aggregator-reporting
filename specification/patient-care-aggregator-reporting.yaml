@@ -1,46 +1,947 @@
 # This is an OpenAPI Specification (https://swagger.io/specification/)
 # for patient-care-aggregator-reporting owned by NHS Digital (https://digital.nhs.uk/)
-openapi: '3.0.0'
+openapi: "3.0.3"
 info:
-  title: 'patient-care-aggregator-reporting'
-  version: 'Computed and injected at build time by `scripts/set_version.py`'
-  description: |
-    ## Overview
-    Add a fully fledged description here with markdown syntax.
-    For help completing the content of your API spec, see [our guidance](https://nhsd-confluence.digital.nhs.uk/display/APM/Documenting+your+API).
-    You should also base your content on our exemplar API - [PDS FHIR](https://digital.nhs.uk/developer/api-catalogue/personal-demographics-service-fhir).
-    ## Who can use this API
-    To be completed.
-    ## Related APIs
-    To be completed.
-    ## API status and roadmap
-    To be completed.
-    ## Service level
-    To be completed.
-    ## Technology
-    To be completed.
-    ### Open source
-    To be completed.
-    ## Network access
-    To be completed.
-    ## Security and authorisation
-    To be completed.
-    ## Environments and testing
-    To be completed.
-    ## Onboarding
-    To be completed.
-    ## Errors
-    To be completed.
-    
-  contact:
-    name: 'patient-care-aggregator-reporting API Support'
-    url: 'https://digital.nhs.uk/developer/help-and-support'
-    email: api.management@nhs.net
-servers:
-  - url: 'https://sandbox.api.service.nhs.uk/patient-care-aggregator-reporting'
-    description: Sandbox environment.
-  - url: 'https://int.api.service.nhs.uk/patient-care-aggregator-reporting'
-    description: Integration test environment.
-  - url: 'https://api.service.nhs.uk/patient-care-aggregator-reporting'
-    description: Production environment.
-paths: {}
+  title: "Wayfinder Reporting Service [In Development]"
+  description: "This service exposes a single-method event-sink for aggregating analytics data from Wayfinder connected services."
+  version: "1.0.0"
+paths:
+  /events:
+    post:
+      summary: "Event Sink."
+      description: "Accepts a list of events related to actions in the Wayfinder architecture. For example, when a user has logged into the NHS App, when a user cancels an appointment in a PEP system, or when the Aggregator receives a record from a PEP."
+      responses:
+        200:
+          description: "OK"
+        400:
+          description: "Validation Failed"
+      requestBody:
+        description: "Send an Event"
+        content:
+          application/json:
+            schema:
+              type: "array"
+              items:
+                oneOf:
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "SESSION"
+                      NHSNumber:
+                        type: "string"
+                        pattern: "^[1-9][0-9]{9}$"
+                        minLength: 10
+                        maxLength: 10
+                      Id:
+                        type: "string"
+                        maxLength: 100
+                      isOpenInNHSApp:
+                        type: "boolean"
+                      Device:
+                        type: "string"
+                        maxLength: 55
+                      Status:
+                        type: "string"
+                        maxLength: 25
+                        enum:
+                          - "success"
+                          - "dobMissmatch"
+                          - "failed"
+                      TrackingId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "NHSNumber"
+                      - "Id"
+                      - "isOpenInNHSApp"
+                      - "Status"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "PATIENT"
+                      NHSNumber:
+                        type: "string"
+                        pattern: "^[1-9][0-9]{9}$"
+                        minLength: 10
+                        maxLength: 10
+                      GP:
+                        type: "string"
+                        maxLength: 5
+                    required:
+                      - "Timestamp"
+                      - "NHSNumber"
+                      - "GP"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "PATIENT-PREF"
+                      NHSNumber:
+                        type: "string"
+                        pattern: "^[1-9][0-9]{9}$"
+                        minLength: 10
+                        maxLength: 10
+                      Preference:
+                        type: "string"
+                        maxLength: 255
+                        enum:
+                          - "EmailConsent"
+                          - "SMSConsent"
+                      OldValue:
+                        type: "string"
+                        maxLength: 255
+                        enum:
+                          - "true"
+                          - "false"
+                      NewValue:
+                        type: "string"
+                        maxLength: 255
+                        enum:
+                          - "true"
+                          - "false"
+                    required:
+                      - "Timestamp"
+                      - "NHSNumber"
+                      - "Preference"
+                      - "NewValue"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "REFERRAL"
+                      ReferralId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "ReferralId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "REFERRAL-VIEW"
+                      SessionId:
+                        type: "string"
+                        maxLength: 100
+                      ReferralId:
+                        type: "string"
+                        maxLength: 100
+                      TrackingId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "SessionId"
+                      - "ReferralId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "APPT"
+                      NHSNumber:
+                        type: "string"
+                        pattern: "^[1-9][0-9]{9}$"
+                        minLength: 10
+                        maxLength: 10
+                      Id:
+                        type: "string"
+                        maxLength: 100
+                      AppointmentDate:
+                        type: "string"
+                        format: "date-time"
+                      ODSCode:
+                        type: "string"
+                        maxLength: 5
+                      Status:
+                        type: "string"
+                        enum:
+                          - "booked"
+                          - "fulfilled"
+                          - "cancelled"
+                          - "noshow"
+                          - "checked-in"
+                    required:
+                      - "Timestamp"
+                      - "NHSNumber"
+                      - "Id"
+                      - "AppointmentDate"
+                      - "ODSCode"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "APPT-VIEW"
+                      AppointmentId:
+                        type: "string"
+                        maxLength: 100
+                      SessionId:
+                        type: "string"
+                        maxLength: 100
+                      TrackingId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "AppointmentId"
+                      - "SessionId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "APPT-REQUEST-CANC"
+                      AppointmentId:
+                        type: "string"
+                        maxLength: 100
+                      SessionId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "AppointmentId"
+                      - "SessionId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "APPT-REQUEST-RESCH"
+                      AppointmentId:
+                        type: "string"
+                        maxLength: 100
+                      SessionId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "AppointmentId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "APPT-REQUEST-CONFIRM"
+                      AppointmentId:
+                        type: "string"
+                        maxLength: 100
+                      SessionId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "AppointmentId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "APPT-ATTEND"
+                      AppointmentId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "AppointmentId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "APPT-CANC"
+                      AppointmentId:
+                        type: "string"
+                        maxLength: 100
+                      Reason:
+                        type: "string"
+                        enum:
+                          - "PATIENT"
+                          - "HOSPITAL"
+                    required:
+                      - "Timestamp"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "APPT-RESCH"
+                      AppointmentId:
+                        type: "string"
+                        maxLength: 100
+                      NewAppointmentId:
+                        type: "string"
+                        maxLength: 100
+                      Reason:
+                        type: "string"
+                        enum:
+                          - "PATIENT"
+                          - "HOSPITAL"
+                    required:
+                      - "Timestamp"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "APPT-DNA"
+                      AppointmentId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "AppointmentId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "DOC"
+                      NHSNumber:
+                        type: "string"
+                        pattern: "^[1-9][0-9]{9}$"
+                        minLength: 10
+                        maxLength: 10
+                      Id:
+                        type: "string"
+                        maxLength: 100
+                      AppointmentId:
+                        type: "string"
+                        maxLength: 100
+                      DocumentDate:
+                        type: "string"
+                        format: "date-time"
+                      DocumentType:
+                        type: "string"
+                        maxLength: 55
+                        enum:
+                          - "Referral letter"
+                          - "Appointment Scheduling letter"
+                          - "Appointment Outcome letter"
+                          - "General update letter"
+                      ODSCode:
+                        type: "string"
+                        maxLength: 5
+                      Status:
+                        type: "string"
+                        enum:
+                          - "Unread"
+                          - "Seen"
+                          - "Read"
+                    required:
+                      - "Timestamp"
+                      - "NHSNumber"
+                      - "Id"
+                      - "DocumentDate"
+                      - "DocumentType"
+                      - "ODSCode"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "DOC-VIEW"
+                      DocumentId:
+                        type: "string"
+                        maxLength: 100
+                      SessionId:
+                        type: "string"
+                        maxLength: 100
+                      TrackingId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "DocumentId"
+                      - "SessionId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "DOC-OPEN"
+                      DocumentId:
+                        type: "string"
+                        maxLength: 100
+                      SessionId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "DocumentId"
+                      - "SessionId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "QUEST"
+                      NHSNumber:
+                        type: "string"
+                        pattern: "^[1-9][0-9]{9}$"
+                        minLength: 10
+                        maxLength: 10
+                      Id:
+                        type: "string"
+                        maxLength: 100
+                      AppointmentId:
+                        type: "string"
+                        maxLength: 100
+                      QuestionnaireDate:
+                        type: "string"
+                        format: "date-time"
+                      QuestionnaireType:
+                        type: "string"
+                        maxLength: 55
+                        enum:
+                          - "Pre-appointment questionnaire"
+                          - "Post-appointment questionnaire"
+                          - "General update questionnaire"
+                      ODSCode:
+                        type: "string"
+                        maxLength: 5
+                      Status:
+                        type: "string"
+                        enum:
+                          - "requested"
+                          - "cancelled"
+                          - "in-progress"
+                          - "completed"
+                    required:
+                      - "Timestamp"
+                      - "NHSNumber"
+                      - "Id"
+                      - "QuestionnaireDate"
+                      - "QuestionnaireType"
+                      - "ODSCode"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "QUEST-VIEW"
+                      SessionId:
+                        type: "string"
+                        maxLength: 100
+                      QuestionnaireId:
+                        type: "string"
+                        maxLength: 100
+                      TrackingId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "SessionId"
+                      - "QuestionnaireId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "QUEST-STARTED"
+                      SessionId:
+                        type: "string"
+                        maxLength: 100
+                      QuestionnaireId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "QuestionnaireId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "QUEST-COMPLETE"
+                      SessionId:
+                        type: "string"
+                        maxLength: 100
+                      QuestionnaireId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "QuestionnaireId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "QUEST-REVOKED"
+                      SessionId:
+                        type: "string"
+                        maxLength: 100
+                      QuestionnaireId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "QuestionnaireId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY"
+                      NHSNumber:
+                        type: "string"
+                        pattern: "^[1-9][0-9]{9}$"
+                        minLength: 10
+                        maxLength: 10
+                      Id:
+                        type: "string"
+                        maxLength: 100
+                      Type:
+                        type: "string"
+                        maxLength: 25
+                        enum:
+                          - "SMS"
+                          - "Email"
+                          - "NHSApp"
+                          - "Letter"
+                      EntityId:
+                        type: "string"
+                        maxLength: 100
+                      NotificationType:
+                        type: "string"
+                        maxLength: 55
+                        enum:
+                          - "Referral"
+                          - "Appointment Scheduling notification"
+                          - "Appointment reminder"
+                          - "Appointment Outcome notification"
+                          - "Document Notification"
+                          - "Questionnaire Notification"
+                    required:
+                      - "Timestamp"
+                      - "NHSNumber"
+                      - "Id"
+                      - "Type"
+                      - "EntityId"
+                      - "NotificationType"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY-SMS-REQUEST"
+                      NotificationId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "NotificationId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY-SMS-RECEIPT"
+                      NotificationId:
+                        type: "string"
+                        maxLength: 100
+                      Status:
+                        type: "string"
+                        enum:
+                          - "requested"
+                          - "delivered"
+                          - "failed"
+                    required:
+                      - "Timestamp"
+                      - "NotificationId"
+                      - "Status"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY-SMS-CTA"
+                      NotificationId:
+                        type: "string"
+                        maxLength: 100
+                      TrackingId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "NotificationId"
+                      - "TrackingId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY-EMAIL-REQUEST"
+                      NotificationId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "NotificationId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY-EMAIL-RECEIPT"
+                      NotificationId:
+                        type: "string"
+                        maxLength: 100
+                      Status:
+                        type: "string"
+                        enum:
+                          - "requested"
+                          - "delivered"
+                          - "failed"
+                    required:
+                      - "Timestamp"
+                      - "NotificationId"
+                      - "Status"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY-EMAIL-OPEN"
+                      NotificationId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "NotificationId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY-EMAIL-CTA"
+                      NotificationId:
+                        type: "string"
+                        maxLength: 100
+                      TrackingId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "NotificationId"
+                      - "TrackingId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY-LETTER-REQUEST"
+                      NotificationId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "NotificationId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY-LETTER-RECEIPT"
+                      NotificationId:
+                        type: "string"
+                        maxLength: 100
+                      Status:
+                        type: "string"
+                        enum:
+                          - "requested"
+                          - "delivered"
+                          - "failed"
+                    required:
+                      - "Timestamp"
+                      - "NotificationId"
+                      - "Status"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY-APP-REQUEST"
+                      NotificationId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "NotificationId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY-APP-RECEIPT"
+                      NotificationId:
+                        type: "string"
+                        maxLength: 100
+                      Status:
+                        type: "string"
+                        enum:
+                          - "requested"
+                          - "delivered"
+                          - "failed"
+                    required:
+                      - "Timestamp"
+                      - "NotificationId"
+                      - "Status"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY-APP-OPEN"
+                      NotificationId:
+                        type: "string"
+                        maxLength: 100
+                      SessionId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "NotificationId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "NOTIFY-APP-CTA"
+                      NotificationId:
+                        type: "string"
+                        maxLength: 100
+                      SessionId:
+                        type: "string"
+                        maxLength: 100
+                      TrackingId:
+                        type: "string"
+                        maxLength: 100
+                    required:
+                      - "Timestamp"
+                      - "NotificationId"
+                      - "TrackingId"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "RS-APPT-POST"
+                      NHSNumber:
+                        type: "string"
+                        pattern: "^[1-9][0-9]{9}$"
+                        minLength: 10
+                        maxLength: 10
+                    required:
+                      - "Timestamp"
+                      - "NHSNumber"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "RS-APPT-DELETE"
+                      NHSNumber:
+                        type: "string"
+                        pattern: "^[1-9][0-9]{9}$"
+                        minLength: 10
+                        maxLength: 10
+                    required:
+                      - "Timestamp"
+                      - "NHSNumber"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "RS-DOC-POST"
+                      NHSNumber:
+                        type: "string"
+                        pattern: "^[1-9][0-9]{9}$"
+                        minLength: 10
+                        maxLength: 10
+                    required:
+                      - "Timestamp"
+                      - "NHSNumber"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "RS-DOC-DELETE"
+                      NHSNumber:
+                        type: "string"
+                        pattern: "^[1-9][0-9]{9}$"
+                        minLength: 10
+                        maxLength: 10
+                    required:
+                      - "Timestamp"
+                      - "NHSNumber"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "RS-QUEST-POST"
+                      NHSNumber:
+                        type: "string"
+                        pattern: "^[1-9][0-9]{9}$"
+                        minLength: 10
+                        maxLength: 10
+                    required:
+                      - "Timestamp"
+                      - "NHSNumber"
+                    additionalProperties: false
+                  - type: "object"
+                    properties:
+                      Timestamp:
+                        type: "string"
+                        format: "date-time"
+                      EventCode:
+                        enum:
+                          - "RS-QUEST-DELETE"
+                      NHSNumber:
+                        type: "string"
+                        pattern: "^[1-9][0-9]{9}$"
+                        minLength: 10
+                        maxLength: 10
+                    required:
+                      - "Timestamp"
+                      - "NHSNumber"
+                    additionalProperties: false
+              minItems: 1
+              example:
+                - EventCode: "RS-QUEST-DELETE"
+                  Timestamp: "2024-02-15T12:53:22.375Z"
+                  NHSNumber: 9876543210
