@@ -2,7 +2,7 @@
 # for patient-care-aggregator-reporting owned by NHS Digital (https://digital.nhs.uk/)
 openapi: "3.0.3"
 info:
-  title: "Wayfinder Reporting Service"
+  title: "Wayfinder Reporting Service [In Development]"
   description: "This service exposes a single-method event-sink for aggregating analytics data from Wayfinder connected services."
   version: "1.0.0"
 paths:
