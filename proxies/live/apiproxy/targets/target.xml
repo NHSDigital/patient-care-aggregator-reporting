@@ -2,13 +2,13 @@
   <PreFlow>
     <Request>
       <Step>
-        <Name>VerifyApiKey.FromHeader</Name>
-        <Condition>request.header.apikey != null</Condition>
-    </Step>
-      <Step>
         <Name>OauthV2.VerifyAccessTokenAppLevel3OrCis2Aal3</Name>
         <Condition>request.header.apikey = null</Condition>
       </Step>
+      <Step>
+        <Name>VerifyApiKey.FromHeader</Name>
+        <Condition>request.header.apikey != null</Condition>
+    </Step>
     <Step>
       <Name>FlowCallout.ApplyRateLimiting</Name>
     </Step>
