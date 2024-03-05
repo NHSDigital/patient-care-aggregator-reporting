@@ -114,8 +114,6 @@ class TestEndpoints:
             }
         )
 
-        print(f'Auth server response: {resp.json()}')
-
         return resp.json()["access_token"]
 
     def test_happy_path(self, get_token):
