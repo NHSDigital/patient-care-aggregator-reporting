@@ -4,29 +4,16 @@ DESCRIPTION: example description
 APIGEE_ENVIRONMENTS:
   - name: internal-dev
     display_name: Internal Development
-  # - name: internal-qa
-  #   display_name: Internal QA
-  #   has_mock_auth: true 
   - name: ref
     display_name: Reference
     has_mock_auth: true
-# Enable environments when ready by uncommenting:
-  # - name: internal-dev-sandbox
-  #   display_name: Internal Development Sandbox
-  #   portal_visibility: false
-  # - name: internal-qa
-  #   display_name: Internal QA
-  #   has_mock_auth: true
-  #   portal_visibility: false
-  # - name: internal-qa-sandbox
-  #   display_name: Internal QA Sandbox
-  #   portal_visibility: false
-  # - name: sandbox
-  #   display_name: Sandbox
-  #   portal_visibility: false
   - name: int
     display_name: Integration Testing
     has_mock_auth: false
+  - name: prod
+    display_name: Production
+    has_mock_auth: false
+    approval_type: manual    
 ---
 meta:
   api:
