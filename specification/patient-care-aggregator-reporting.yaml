@@ -7,11 +7,9 @@ info:
   description: |
   
     ## Overview
-    The Wayfinder Programme requires that key events which take place in all Wayfinder-integrated services be submitted to a central Wayfinder Reporting Service in order for the programme to produce Management Intelligence (MI).
-
     Use this API to send events which happen within your service boundary to the Wayfinder Reporting Service.
     
-    Patient Engagement Portals (PEPs) are major contributors to the secondary care data used by Wayfinder. We sometimes call these secondary care providers, booking systems or patient portals.
+    The Wayfinder Programme requires that key events that take place in all Wayfinder-integrated services be submitted to a central Wayfinder Reporting Service in order for the programme to produce Management Intelligence (MI).
 
     Examples of events from Wayfinder-integrated systems are
     - A session has been started by a user logging into the [NHS App](https://www.nhs.uk/nhs-app/)
@@ -21,6 +19,8 @@ info:
     - A PEP has sent an SMS message to a Wayfinder user
     - A secondary care trust has informed a PEP that an appointment has been booked
 
+    Patient Engagement Portals (PEPs) are major contributors to the secondary care data used by Wayfinder. We sometimes call these secondary care providers, booking systems or patient portals.
+
     The set of events required from your service is defined in the "Scope (Providers)" section of each of the schemas detailed on this page.
 
     You may send multiple events in a single [request](https://www.ibm.com/docs/en/cics-ts/6.1?topic=protocol-http-requests), or single events in multiple requests. This API is [idempotent](https://developer.mozilla.org/en-US/docs/Glossary/Idempotent) so you may safely send the same event multiple times.
@@ -28,6 +28,8 @@ info:
     There is a maximum [payload](https://blog.hubspot.com/website/what-is-payload) size of two megabytes for a single request.
 
     If your service does not have functionality which this specification defines as being within your service boundary (e.g. email notifications), you do not need to send these events to the Wayfinder Reporting Service.
+
+    You do not have to send any events that this specification defines as being within your service boundary if your service does not offer the functionality that allows these events to happen, for example, not all PEPs support the setting of patient preferences for communication.
 
     ## Authorisation
     This API is [application-restricted with signed JWT authentication]([https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation#application-restricted-apis](https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation#application-restricted-apis))
@@ -48,18 +50,18 @@ info:
     For more details, see [service levels](https://digital.nhs.uk/developer/guides-and-documentation/reference-guide#service-levels).
     
     ## Technology
-    This API follows the log shipper pattern. We recommend triggering requests to the Reporting Service as they are written to your logs, but it is also possible to send batches of logged events if that makes more sense for your architecture. 
+    This API follows a centralised logging architectural pattern. We recommend triggering requests to the Reporting Service as they are written to your logs, but it is also possible to send batches of logged events if that makes more sense for your architecture. 
     
-    Requests to the Reporting Service must follow these requirements:
-    - You must implement a timeout of 20 seconds for requests to the Reporting Service, with a single retry for any such timeout.
-    - Requests to the Reporting Service must be sent at a maximum of 25 transactions per second. If this limit is breached, the Reporting Service will return a 429 (Too many requests) HTTP response.
-    - You must meet the NHS Bronze availability requirement, i.e. a minimum of 98% of events generated within your service boundary must be sent to the Reporting Service.
-    - If you choose to send events to the Reporting Service in batches, the maximum delay between event generation and forwarding must be no more than twelve hours.
-    - If you choose to send events to the Reporting Service in batches, the maximum payload size is 2 megabytes.
-    - You do not need to store any events sent to the Reporting Service if the service returns a 200 (OK) HTTP response.
-    - If the Reporting Service is unavailable, you must queue any failed requests to be sent once the service is available again.
-    - Events you send to the Reporting Service must match the specification in this document. If they do not, the Reporting Service will return a 400 (Bad Request) HTTP response. You must save any queries that fail validation for further investigation. Retries should not be attempted in this scenario.
-    - Full monitoring and alerting of requests sent to the Reporting Service must be in place, including logs of requests sent to the Reporting Service. The payload does not need to be logged.
+    | Requirement Ref       | Requirement                                                                        |
+    | ----------------------| ------------------------------------------------------------------------------- |
+    | WF-NFR-MI-02          | You must implement a timeout of 20 seconds for requests to the Reporting Service, with a single retry for any such timeout. |
+    | WF-NFR-MI-03          | Requests to the Reporting Service must be sent at a maximum of 25 transactions per second. If this limit is breached, the Reporting Service will return a 429 (Too many requests) HTTP response.             |
+    | WF-NFR-MI-06          | You must meet the NHS Bronze availability requirement, i.e. a minimum of 98% of events generated within your service boundary must be sent to the Reporting Service.|                |
+    | WF-NFR-MI-04          | If you choose to send events to the Reporting Service in batches, the maximum delay between event generation and forwarding must be no more than twelve hours.|
+    | WF-NFR-MI-05          | If you choose to send events to the Reporting Service in batches, the maximum payload size is 2 megabytes. |
+    | WF-NFR-MI-07          | You do not need to store any events sent to the Reporting Service if the service returns a 200 (OK) HTTP response. If the Reporting Service is unavailable, you must queue any failed requests to be sent once the service is available again. |
+    | WF-NFR-MI-08          | If the Reporting Service is unavailable, you must queue any failed requests to be sent once the service is available again. See the Errors section below for more detail. |
+    | WF-NFR-MI-11          | Full monitoring and alerting of requests sent to the Reporting Service must be in place, including logs of requests sent to the Reporting Service. The payload does not need to be logged (though must be queued in case of failure, as mentioned above). |
 
     ## Network access
     This API is available on the internet and, indirectly, on the [Health and Social Care Network (HSCN)](https://digital.nhs.uk/services/health-and-social-care-network).
