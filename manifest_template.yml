@@ -9,7 +9,7 @@ APIGEE_ENVIRONMENTS:
     has_mock_auth: true
   - name: int
     display_name: Integration Testing
-    has_mock_auth: false
+    has_mock_auth: true
   - name: prod
     display_name: Production
     has_mock_auth: false
