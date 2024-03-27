@@ -11,13 +11,19 @@ info:
     
     The Wayfinder Programme requires that key events that take place in all Wayfinder-integrated services be submitted to a central Wayfinder Reporting Service in order for the programme to produce Management Intelligence (MI).
 
-    Examples of events from Wayfinder-integrated systems are
-    - A session has been started by a user logging into the [NHS App](https://www.nhs.uk/nhs-app/)
-    - A referral has been viewed by a Wayfinder user in the [e-Referrals Service](https://digital.nhs.uk/services/e-referral-service)
-    - A Wayfinder user has cancelled an appointment in a PEP's user interface
-    - A PEP has informed the [Patient Care Aggregator](https://digital.nhs.uk/services/patient-care-aggregator) that they have questionnaire data for a particular NHS Number
-    - A PEP has sent an SMS message to a Wayfinder user
-    - A secondary care trust has informed a PEP that an appointment has been booked
+    Examples of events from Wayfinder-integrated systems are provided in the following table.
+
+    | Service Boundary                                                                   | Example                                                                              |
+    |------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+    |[NHS App](https://www.nhs.uk/nhs-app/)                                              | A session has been started by a user logging into the NHS App                        |
+    |[e-Referrals Service](https://digital.nhs.uk/services/e-referral-service)           | A referral has been viewed by a Wayfinder user in the e-Referrals Service            |
+    |Patient Engagement Portals (PEPs)                                                   | A Wayfinder user has cancelled an appointment in a PEP's user interface              |
+    |[Patient Care Aggregator](https://digital.nhs.uk/services/patient-care-aggregator)  | A PEP has informed the  that they have questionnaire data for a particular NHS Number|
+    |Patient Engagement Portals (PEPs)                                                   | A PEP has sent an SMS message to a Wayfinder user                                    |
+    |Patient Engagement Portals (PEPs)                                                   |A secondary care trust has informed a PEP that an appointment has been booked         |
+
+    |                                                                                    |                                                                                      |
+    |------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
 
     Patient Engagement Portals (PEPs) are major contributors to the secondary care data used by Wayfinder. We sometimes call these secondary care providers, booking systems or patient portals.
 
@@ -25,10 +31,6 @@ info:
 
     You may send multiple events in a single [request](https://www.ibm.com/docs/en/cics-ts/6.1?topic=protocol-http-requests), or single events in multiple requests. This API is [idempotent](https://developer.mozilla.org/en-US/docs/Glossary/Idempotent) so you may safely send the same event multiple times.
     
-    There is a maximum [payload](https://blog.hubspot.com/website/what-is-payload) size of two megabytes for a single request.
-
-    If your service does not have functionality which this specification defines as being within your service boundary (e.g. email notifications), you do not need to send these events to the Wayfinder Reporting Service.
-
     You do not have to send any events that this specification defines as being within your service boundary if your service does not offer the functionality that allows these events to happen, for example, not all PEPs support the setting of patient preferences for communication.
 
     ## Authorisation
@@ -52,16 +54,16 @@ info:
     ## Technology
     This API follows a centralised logging architectural pattern. We recommend triggering requests to the Reporting Service as they are written to your logs, but it is also possible to send batches of logged events if that makes more sense for your architecture. 
     
-    | Requirement Ref       | Requirement                                                                        |
-    | ----------------------| ------------------------------------------------------------------------------- |
-    | WF-NFR-MI-02          | You must implement a timeout of 20 seconds for requests to the Reporting Service, with a single retry for any such timeout. |
-    | WF-NFR-MI-03          | Requests to the Reporting Service must be sent at a maximum of 25 transactions per second. If this limit is breached, the Reporting Service will return a 429 (Too many requests) HTTP response.             |
-    | WF-NFR-MI-06          | You must meet the NHS Bronze availability requirement, i.e. a minimum of 98% of events generated within your service boundary must be sent to the Reporting Service.|                |
-    | WF-NFR-MI-04          | If you choose to send events to the Reporting Service in batches, the maximum delay between event generation and forwarding must be no more than twelve hours.|
-    | WF-NFR-MI-05          | If you choose to send events to the Reporting Service in batches, the maximum payload size is 2 megabytes. |
-    | WF-NFR-MI-07          | You do not need to store any events sent to the Reporting Service if the service returns a 200 (OK) HTTP response. If the Reporting Service is unavailable, you must queue any failed requests to be sent once the service is available again. |
-    | WF-NFR-MI-08          | If the Reporting Service is unavailable, you must queue any failed requests to be sent once the service is available again. See the Errors section below for more detail. |
-    | WF-NFR-MI-11          | Full monitoring and alerting of requests sent to the Reporting Service must be in place, including logs of requests sent to the Reporting Service. The payload does not need to be logged (though must be queued in case of failure, as mentioned above). |
+    | Requirement Reference | Requirement                                                                                                                                                                                                                                                                                     |
+    | ----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+    | WF-NFR-MI-02          | You must implement a timeout of 20 seconds for requests to the Reporting Service, with a single retry for any such timeout.                                                                                                                                                                     |
+    | WF-NFR-MI-03          | Requests to the Reporting Service must be sent at a maximum of 25 transactions per second. If this limit is breached, the Reporting Service will return a 429 (Too many requests) HTTP response.                                                                                                |
+    | WF-NFR-MI-06          | You must meet the NHS Bronze availability requirement, i.e. a minimum of 98% of events generated within your service boundary must be sent to the Reporting Service.                                                                                                                            |                
+    | WF-NFR-MI-04          | If you choose to send events to the Reporting Service in batches, the maximum delay between event generation and forwarding must be no more than twelve hours.                                                                                                                                  |
+    | WF-NFR-MI-05          | If you choose to send events to the Reporting Service in batches, the maximum payload size is 2 megabytes.                                                                                                                                                                                      |
+    | WF-NFR-MI-07          | You do not need to store any events sent to the Reporting Service if the service returns a 200 (OK) HTTP response. If the Reporting Service is unavailable, you must queue any failed requests to be sent once the service is available again.                                                  |
+    | WF-NFR-MI-08          | If the Reporting Service is unavailable, you must queue any failed requests to be sent once the service is available again. See the Errors section below for more detail.                                                                                                                       |
+    | WF-NFR-MI-11          | Full monitoring and alerting of requests sent to the Reporting Service must be in place, including logs of requests sent to the Reporting Service. The payload does not need to be logged (though must be queued in case of failure, as mentioned above). These logs must be stored for 90 days.|
 
     ## Network access
     This API is available on the internet and, indirectly, on the [Health and Social Care Network (HSCN)](https://digital.nhs.uk/services/health-and-social-care-network).
@@ -75,14 +77,14 @@ info:
     thorisation)
         
     ## Environments and testing
-    | Environment       | Base URL                                                                        |
+    | Environment       | Base URL                                                     |
     | ----------------- | ------------------------------------------------------------------------------- |
     | Sandbox           | Not available                                                                   |
     | Integration test  | `https://int.api.service.nhs.uk/patient-care-aggregator-reporting`              |
     | Production        | `https://api.service.nhs.uk/patient-care-aggregator-reporting/`                 |
 
     ### Sandbox testing
-    This API does not currently have a sandbox environment. If you would like us to add one, [contact us](https://digital.nhs.uk/developer/help-and-support).
+    This API does not currently have a sandbox environment, but you are welcome to send as many requests as you like to the Integration test environment while developing your API. If you would like us to add a sandbox environment, [contact us](https://digital.nhs.uk/developer/help-and-support).
     
     ### Integration testing
     Our [integration test environment](https://digital.nhs.uk/developer/guides-and-documentation/testing#integration-testing):
@@ -95,13 +97,19 @@ info:
     This API is in production as a first-of-type. This means you will be directly contacted by the Wayfinder team if you are one of the first-of-type clients.
 
     ## Errors
-    We use standard HTTP status codes to show whether an API request succeeded or not. They are usually in the range:
+    We use standard HTTP status codes to show whether an API request succeeded or not. The Reporting Service will return the following HTTP Status Codes.
 
-    * 200 to 299 if it succeeded, including code 202 if it was accepted by an API that needs to wait for further action
-    * 400 to 499 if it failed because of a client error by your application
-    * 500 to 599 if it failed because of an error on our server
-    
-    Errors specific to each API are shown in the Endpoints section, under Response. See our [reference guide](https://digital.nhs.uk/developer/guides-and-documentation/reference-guide#http-status-codes) for more on errors.
+    | Reporting Service Response | Action required from your service                                                                                                                                                                                                                                                    |
+    |---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+    | 200 [OK]                  | Your request passed validation. You do not need to store requests that receive this HTTP response code.                                                                                                                                                                               |                                    
+    | 400 [Bad Request]         | Your response failed validation. The Reporting Service will provide details of the validation failure in its response. You are required store these failed requests for further investigation. Do not attempt to retry requests that have received this HTTP response code.           |
+    | 401 [Unauthorised]        | The access token you send us for authentication is invalid. You are required queue these failed requests to be re-sent once the authentication problem is resolved. You may attempt to retry these requests as they may be caused by a transient issue with the APIM Identity Service.|
+    | 503 [Service Unavailable] | There is an problem with the Reporting Service. You are required queue these failed requests to be re-sent once the problem is resolved.                                                                                                                                              |                                                                                                                                             |
+
+    |                                                                                    |                                                                                      |
+    |------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+
+    See our [reference guide](https://digital.nhs.uk/developer/guides-and-documentation/reference-guide#http-status-codes) for more on errors.
     
   contact:
     name: 'patient-care-aggregator-reporting API Support'
@@ -116,7 +124,7 @@ paths:
   /:
     post:
       summary: "Event Sink"
-      description: "Accepts a list of events related to actions in the Wayfinder architecture. For example, when a user has logged into the NHS App, when a user cancels an appointment in a PEP system, or when the Aggregator receives a record from a PEP.\n\nPlease ensure to check the scopes detailed in each event to confirm if the event is in your given scope."
+      description: "Accepts a JSON array of objects, each representing an event within your services's boundary."
       parameters:
         - in: "header"
           name: "X-Correlation-ID"
