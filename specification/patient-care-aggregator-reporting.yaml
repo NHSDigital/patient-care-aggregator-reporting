@@ -79,11 +79,11 @@ info:
     For more details see [Network access for APIs](https://digital.nhs.uk/developer/guides-and-documentation/network-access-for-apis).
         
     ## Environments and testing
-    | Environment       | Base URL                                                     |
+    | Environment       | Base URL                                                                        |
     | ----------------- | ------------------------------------------------------------------------------- |
     | Sandbox           | Not available                                                                   |
     | Integration test  | `https://int.api.service.nhs.uk/patient-care-aggregator-reporting`              |
-    | Production        | `https://api.service.nhs.uk/patient-care-aggregator-reporting/`                 |
+    | Production        | `https://api.service.nhs.uk/patient-care-aggregator-reporting`                  |
 
     ### Sandbox testing
     This API does not have a sandbox environment, but you are may to send as many requests as you like to the Integration test environment while developing your API. If you would like us to add a sandbox environment, [contact us](https://digital.nhs.uk/developer/help-and-support).
@@ -128,7 +128,7 @@ paths:
       parameters:
         - in: "header"
           name: "X-Correlation-ID"
-          description: "A GUID passed from the root initiator for each request made to the API. All systems are required to store the value as part of standard logging to provide traceability by unique ID in the event of debug/forensic etc. Data needs to be retained for 90 days.\n\n #### Note this is a standardised naming convention. There is no requirement for it to be the same X-Correlation-ID related to inbound requests."
+          description: "A GUID passed from the root initiator for each request made to the API. All systems are required to store the value as part of standard logging to provide traceability by unique ID in the event of debug/forensic etc. Data needs to be retained for 90 days.\n\n #### Note this is a standardised naming convention. There is no requirement for it to be the same X-Correlation-ID as provided in any other requests."
           schema:
             type: "string"
             format: "uuid"
@@ -570,7 +570,7 @@ components:
         - "Timestamp"
         - "AppointmentId"
       additionalProperties: false
-      description: "A confirm attendance event where the user (patient) has completed the confirmed attendance workflow in a PEP UI for a given appointment.\n#### Scope (Providers):\n* PEP's"
+      description: "#### In scope for:\n* PEPs\n #### A user has confirmed that they intend to attend an upcoming appointment in a PEP UI. \n* \n\n #### Notes:\n \n* 'User' refers to patients using your service.\n\n"
     APPT-ATTEND:
       type: "object"
       properties:
