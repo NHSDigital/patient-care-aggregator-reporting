@@ -41,7 +41,7 @@ info:
     In this pattern, you authenticate your application by sending a signed JSON Web Token (JWT) to our OAuth 2.0 authorisation server. You provide us with your public key and sign the JWT with your private key. In return, we give you an access token, which you then include with each API request.
 
     ## Who can use this API
-    This API is for Wayfinder-internal use only.
+    This API is for Wayfinder-internal use only. 
     
     If you are interested in using this API in another context, [contact us](https://digital.nhs.uk/developer/help-and-support).
     
