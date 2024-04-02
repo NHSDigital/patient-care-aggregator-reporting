@@ -33,7 +33,7 @@ info:
     
     If your service does not offer users the functionality to produce events that are defined by this specification as being within your service boundary, you do not have to send these events to the Wayfinder Reporting Service. For example, not all PEPs support the setting of patient preferences for communication and therefore cannot send these events.
 
-    All events are related to an parent entity. For example, appointments have events indicating that an appointment has been viewed by the user. Questionnaires have events that indicate that a questionnaire has been completed by a user. You must send events for the creation or update of these parent entities if you send events related to those parent entities.
+    All events are related to an parent entity. For example, appointments (APPT) have events indicating that an appointment has been viewed by the user (APPT-VIEW). Questionnaires (QUEST) have events that indicate that a questionnaire has been completed by a user (QUEST-COMPLETE). You must send events for the creation or update of these parent entities if you send events related to those parent entities.
 
     ## Authorisation
     This API is [application-restricted with signed JWT authentication]([https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation/application-restricted-restful-apis-signed-jwt-authentication)), meaning we authenticate and authorise the calling application but we do not authenticate or authorise the end user.
