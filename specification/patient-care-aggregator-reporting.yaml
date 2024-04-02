@@ -123,8 +123,6 @@ paths:
     post:
       summary: "Send Event(s) to the Wayfinder Reporting Service"
       description: "Accepts a JSON array of objects, each representing an event within your Wayfinder services's boundary."
-      security:
-        - ApiKeyAuth: []
       parameters:
         - in: "header"
           name: "X-Correlation-ID"
@@ -1626,4 +1624,4 @@ components:
                         type: "string"
                         example: "keymanagement.service.access_token_expired"
 security:
-  - ApimAccessToken: []
+  - ApiKeyAuth: []
