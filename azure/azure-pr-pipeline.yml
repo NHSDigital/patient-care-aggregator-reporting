@@ -2,6 +2,7 @@ name: "$(SourceBranchName)+$(BuildID)"
 
 trigger: none
 pr: none
+pull_request: none
 
 resources:
   repositories:
