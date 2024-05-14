@@ -51,7 +51,7 @@ apigee:
                   timeunit: minute
                 spikeArrest:
                   enabled: true
-                  ratelimit: 30000 # 1000 requests per second
+                  ratelimit: 60000pm # 1000 requests per second
         description: {{ DESCRIPTION }}
         displayName: {{ TITLE }}
         environments: [ {{ ENV.name }} ]
