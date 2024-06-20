@@ -36,7 +36,7 @@ info:
     All events are related to an parent entity. For example, appointments (APPT) have events indicating that an appointment has been viewed by the user (APPT-VIEW). Questionnaires (QUEST) have events that indicate that a questionnaire has been completed by a user (QUEST-COMPLETE). You must send events for the creation or update of these parent entities if you send events related to those parent entities.
 
     ## Who can use this API
-    This API is for Wayfinder-internal use only.
+    This API is for Wayfinder-internal use only. 
     
     If you are interested in using this API in another context, [contact us](https://digital.nhs.uk/developer/help-and-support).
 
