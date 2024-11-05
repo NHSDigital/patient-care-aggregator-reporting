@@ -1,14 +1,14 @@
 # This is an OpenAPI Specification (https://swagger.io/specification/)
 # for patient-care-aggregator-reporting owned by NHS Digital (https://digital.nhs.uk/)
-openapi: "3.0.3"
+openapi: 3.0.3
 info:
-  title: "Wayfinder Reporting Service"
-  version: "v2.3.0"
+  title: Wayfinder Reporting Service
+  version: v2.6.0
   description: |
-  
+
     ## Overview
     Send events which happen within your service boundary to the Wayfinder Reporting Service.
-    
+
     The Wayfinder programme requires that key events that take place in all Wayfinder-integrated services be submitted to a central Wayfinder Reporting Service in order for the programme to produce Management Intelligence (MI) in a tool called Wayfinder Insights.
 
     Examples of events from Wayfinder-integrated systems are:
@@ -21,27 +21,27 @@ info:
     |[Patient Care Aggregator](https://digital.nhs.uk/services/patient-care-aggregator)  | a PEP has informed the Patient Care Aggregator that they have questionnaire data for a particular NHS Number|
     |Patient Engagement Portals (PEPs)                                                   | a PEP has sent an SMS message to a Wayfinder user                                    |
     |Patient Engagement Portals (PEPs)                                                   | a secondary care trust has informed a PEP that an appointment has been booked        |
-    
+
     |                                                                                    |                                                                                      |
     |------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
 
     Patient Engagement Portals (PEPs) are major contributors to the secondary care data used by Wayfinder. We sometimes call these secondary care providers, booking systems or patient portals.
 
-    The set of events required from your service is defined in the "In Scope" section of each of the schemas detailed on this page.
+    The set of events required from your service is defined in the 'In Scope' section of each of the schemas detailed on this page.
 
     You may send multiple events in a single [request](https://www.ibm.com/docs/en/cics-ts/6.1?topic=protocol-http-requests), or single events in multiple requests. This API is [idempotent](https://developer.mozilla.org/en-US/docs/Glossary/Idempotent) so you may safely send the same event multiple times.
-    
+
     If your service does not offer users the functionality to produce events that are defined by this specification as being within your service boundary, you do not have to send these events to the Wayfinder Reporting Service. For example, not all PEPs support the setting of patient preferences for communication and therefore cannot send these events.
 
     All events are related to an parent entity. For example, appointments (APPT) have events indicating that an appointment has been viewed by the user (APPT-VIEW). Questionnaires (QUEST) have events that indicate that a questionnaire has been completed by a user (QUEST-COMPLETE). You must send events for the creation or update of these parent entities if you send events related to those parent entities.
 
     ## Who can use this API
     This API is for Wayfinder-internal use only.
-    
+
     If you are interested in using this API in another context, [contact us](https://digital.nhs.uk/developer/help-and-support).
 
     In this pattern, you authenticate your application by sending a signed JSON Web Token (JWT) to our OAuth 2.0 authorisation server. You provide us with your public key and sign the JWT with your private key. In return, we give you an access token, which you then include with each API request.
-    
+
     ## Related APIs
     - [Patient Care Aggregator - FHIR API](https://digital.nhs.uk/developer/api-catalogue/patient-care-aggregator-fhir). Get an aggregated list of referrals and bookings for a patient from secondary care providers.
 
@@ -58,12 +58,12 @@ info:
     This API is a silver service, meaning it is operational 24 x 7 x 365 but only supported during working hours.
 
     For more details, see [service levels](https://digital.nhs.uk/developer/guides-and-documentation/reference-guide#service-levels).
-    
+
     ## Technology
     This API follows a centralised logging architectural pattern. It has been designed to minimise the need for your service to maintain state on events sent to the Wayfinder Reporting Service.
-    
+
     We recommend triggering requests to the Wayfinder Reporting Service as they are written to your logs, but it is also possible to send batches of logged events if that approach makes more sense for your architecture. 
-    
+
     You must adhere to the following requirements when sending events to the Wayfinder Reporting Service.
 
     | Requirement Reference | Requirement                                                                                                                                                                                                                                                                                     |
@@ -94,15 +94,15 @@ info:
 
     ### Sandbox testing
     This API does not have a sandbox environment, but you are may to send as many requests as you like to the Integration test environment while developing your API. If you would like us to add a sandbox environment, [contact us](https://digital.nhs.uk/developer/help-and-support).
-    
+
     ### Integration testing
     Our [integration test environment](https://digital.nhs.uk/developer/guides-and-documentation/testing#integration-testing):
     * is for formal integration testing, but may also be used for testing when developing your API
     * includes authorisation
-    
+
     ## Onboarding
     You need to get your software approved by us before it can go live with this API. We call this onboarding. The onboarding process can sometimes be quite long, so it’s worth planning well ahead.
-    
+
     This API is in production as a private beta. This means you will be directly contacted by the Wayfinder team if you are one of the private beta clients.
 
     ## Errors and actions we require you to take
@@ -129,1523 +129,1977 @@ info:
     | FHIR libraries and SDKs               | Various open source libraries for integrating with FHIR APIs.| [FHIR libraries and SDKs](https://digital.nhs.uk/developer/guides-and-documentation/api-technologies-at-nhs-digital#fhir-libraries-and-sdks) |
 
     We currently don't have any open source client libraries or sample code for this API. If you think this would be useful, you can upvote the suggestion on our Interactive Product Backlog.
-
 servers:
-  - url: "https://int.api.service.nhs.uk/patient-care-aggregator-reporting/"
-    description: "Integration (AOS)"
-  - url: "https://api.service.nhs.uk/patient-care-aggregator-reporting"
-
-    description: "Production"
+  - url: 'https://int.api.service.nhs.uk/patient-care-aggregator-reporting/'
+    description: Integration (AOS)
+  - url: 'https://api.service.nhs.uk/patient-care-aggregator-reporting'
+    description: Production
 paths:
   /:
     post:
-      summary: "Send Event(s) to the Wayfinder Reporting Service"
-      description: | 
+      summary: Send Event(s) to the Wayfinder Reporting Service
+      description: |-
         Accepts a list of events related to actions in the Wayfinder architecture. For example:
         - when a user has logged into the NHS App
         - when a user cancels an appointment in a PEP system
         - when the Aggregator receives a record from a PEP.
-        
+
         Please ensure to check the scopes detailed in each event to confirm if the event is in your given scope.
       parameters:
-        - in: "header"
-          name: "X-Correlation-ID"
-          description: "A GUID passed from the root initiator for each request made to the API. All systems are required to store the value as part of standard logging to provide traceability by unique ID in the event of debug/forensic etc. Data needs to be retained for 90 days.\n\n #### Note this is a standardised naming convention. There is no requirement for it to be the same X-Correlation-ID as provided in any other requests."
+        - in: header
+          name: X-Correlation-ID
+          description: |-
+            A GUID passed from the root initiator for each request made to the API. All systems are required to store the value as part of standard logging to provide traceability by unique ID in the event of debug/forensic etc. Data needs to be retained for 90 days.
+
+             #### Note this is a standardised naming convention. There is no requirement for it to be the same X-Correlation-ID as provided in any other requests.
           schema:
-            type: "string"
-            format: "uuid"
+            type: string
+            format: uuid
           required: true
-        - in: "header"
-          name: "client-id"
-          description: "Client ID issued by the Wayfinder team."
+        - in: header
+          name: client-id
+          description: Client id issued by the Wayfinder team.
           schema:
-            type: "string"
+            type: string
           required: true
       responses:
-        200:
-          $ref: "#/components/responses/ValidRequest"
-        400:
-          $ref: "#/components/responses/InvalidRequest"
-        401:
-          $ref: "#/components/responses/UnauthorizedError"
+        '200':
+          $ref: '#/components/responses/ValidRequest'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
       requestBody:
-        description: "JSON array of event(s)"
+        description: JSON array of event(s)
         required: true
         content:
           application/json:
             schema:
-              type: "array"
+              type: array
               items:
                 oneOf:
-                  - $ref: "#/components/schemas/SESSION"
-                  - $ref: "#/components/schemas/PATIENT"
-                  - $ref: "#/components/schemas/PATIENT-PREF"
-                  - $ref: "#/components/schemas/REFERRAL"
-                  - $ref: "#/components/schemas/REFERRAL-VIEW"
-                  - $ref: "#/components/schemas/APPT"
-                  - $ref: "#/components/schemas/APPT-VIEW"
-                  - $ref: "#/components/schemas/APPT-REQUEST-CANC"
-                  - $ref: "#/components/schemas/APPT-REQUEST-RESCH"
-                  - $ref: "#/components/schemas/APPT-REQUEST-CONFIRM"
-                  - $ref: "#/components/schemas/APPT-ATTEND"
-                  - $ref: "#/components/schemas/APPT-CANC"
-                  - $ref: "#/components/schemas/APPT-RESCH"
-                  - $ref: "#/components/schemas/APPT-DNA"
-                  - $ref: "#/components/schemas/DOC"
-                  - $ref: "#/components/schemas/DOC-VIEW"
-                  - $ref: "#/components/schemas/DOC-OPEN"
-                  - $ref: "#/components/schemas/QUEST"
-                  - $ref: "#/components/schemas/QUEST-VIEW"
-                  - $ref: "#/components/schemas/QUEST-STARTED"
-                  - $ref: "#/components/schemas/QUEST-COMPLETE"
-                  - $ref: "#/components/schemas/QUEST-REVOKED"
-                  - $ref: "#/components/schemas/NOTIFY"
-                  - $ref: "#/components/schemas/NOTIFY-SMS-REQUEST"
-                  - $ref: "#/components/schemas/NOTIFY-SMS-RECEIPT"
-                  - $ref: "#/components/schemas/NOTIFY-SMS-CTA"
-                  - $ref: "#/components/schemas/NOTIFY-EMAIL-REQUEST"
-                  - $ref: "#/components/schemas/NOTIFY-EMAIL-RECEIPT"
-                  - $ref: "#/components/schemas/NOTIFY-EMAIL-OPEN"
-                  - $ref: "#/components/schemas/NOTIFY-EMAIL-CTA"
-                  - $ref: "#/components/schemas/NOTIFY-LETTER-REQUEST"
-                  - $ref: "#/components/schemas/NOTIFY-LETTER-RECEIPT"
-                  - $ref: "#/components/schemas/NOTIFY-APP-REQUEST"
-                  - $ref: "#/components/schemas/NOTIFY-APP-RECEIPT"
-                  - $ref: "#/components/schemas/NOTIFY-APP-OPEN"
-                  - $ref: "#/components/schemas/NOTIFY-APP-CTA"
-                  - $ref: "#/components/schemas/RS-APPT-POST"
-                  - $ref: "#/components/schemas/RS-APPT-DELETE"
-                  - $ref: "#/components/schemas/RS-DOC-POST"
-                  - $ref: "#/components/schemas/RS-DOC-DELETE"
-                  - $ref: "#/components/schemas/RS-QUEST-POST"
-                  - $ref: "#/components/schemas/RS-QUEST-DELETE"
+                  - $ref: '#/components/schemas/SESSION'
+                  - $ref: '#/components/schemas/PATIENT'
+                  - $ref: '#/components/schemas/PATIENT-PREF'
+                  - $ref: '#/components/schemas/REFERRAL'
+                  - $ref: '#/components/schemas/REFERRAL-VIEW'
+                  - $ref: '#/components/schemas/APPT'
+                  - $ref: '#/components/schemas/APPT-VIEW'
+                  - $ref: '#/components/schemas/APPT-REQUEST-CANC'
+                  - $ref: '#/components/schemas/APPT-REQUEST-RESCH'
+                  - $ref: '#/components/schemas/APPT-REQUEST-CONFIRM'
+                  - $ref: '#/components/schemas/APPT-ATTEND'
+                  - $ref: '#/components/schemas/APPT-CANC'
+                  - $ref: '#/components/schemas/APPT-RESCH'
+                  - $ref: '#/components/schemas/APPT-DNA'
+                  - $ref: '#/components/schemas/ADDMISSION'
+                  - $ref: '#/components/schemas/ADDMISSION-VIEW'
+                  - $ref: '#/components/schemas/PATHWAY-VIEW'
+                  - $ref: '#/components/schemas/DOC'
+                  - $ref: '#/components/schemas/DOC-VIEW'
+                  - $ref: '#/components/schemas/DOC-OPEN'
+                  - $ref: '#/components/schemas/QUEST'
+                  - $ref: '#/components/schemas/QUEST-VIEW'
+                  - $ref: '#/components/schemas/QUEST-STARTED'
+                  - $ref: '#/components/schemas/QUEST-COMPLETE'
+                  - $ref: '#/components/schemas/QUEST-REVOKED'
+                  - $ref: '#/components/schemas/NOTIFY'
+                  - $ref: '#/components/schemas/NOTIFY-SMS-REQUEST'
+                  - $ref: '#/components/schemas/NOTIFY-SMS-RECEIPT'
+                  - $ref: '#/components/schemas/NOTIFY-SMS-CTA'
+                  - $ref: '#/components/schemas/NOTIFY-EMAIL-REQUEST'
+                  - $ref: '#/components/schemas/NOTIFY-EMAIL-RECEIPT'
+                  - $ref: '#/components/schemas/NOTIFY-EMAIL-OPEN'
+                  - $ref: '#/components/schemas/NOTIFY-EMAIL-CTA'
+                  - $ref: '#/components/schemas/NOTIFY-LETTER-REQUEST'
+                  - $ref: '#/components/schemas/NOTIFY-LETTER-RECEIPT'
+                  - $ref: '#/components/schemas/NOTIFY-APP-REQUEST'
+                  - $ref: '#/components/schemas/NOTIFY-APP-RECEIPT'
+                  - $ref: '#/components/schemas/NOTIFY-APP-OPEN'
+                  - $ref: '#/components/schemas/NOTIFY-APP-CTA'
+                  - $ref: '#/components/schemas/RS-APPT-POST'
+                  - $ref: '#/components/schemas/RS-APPT-DELETE'
+                  - $ref: '#/components/schemas/RS-DOC-POST'
+                  - $ref: '#/components/schemas/RS-DOC-DELETE'
+                  - $ref: '#/components/schemas/RS-QUEST-POST'
+                  - $ref: '#/components/schemas/RS-QUEST-DELETE'
               minItems: 1
+              example:
+                - EventCode: APPT
+                  Timestamp: '2023-04-01T09:53:22+00:00'
+                  NHSNumber: 9123456789
+                  Id: c351ea8b-0796-49ab-8e26-dce4cd101670
+                  AppointmentDate: '2023-10-01T10:00:00+00:00'
+                  ODSCode: RAB
+                  Status: booked
+                - EventCode: APPT-VIEW
+                  Timestamp: '2023-04-01T10:15:42+00:00'
+                  SessionId: 26fc0d75-a64c-4b45-9466-cb8227caf368
+                  AppointmentId: c351ea8b-0796-49ab-8e26-dce4cd101670
+                - EventCode: APPT-REQUEST-RESCH
+                  Timestamp: '2023-04-01T10:20:01+00:00'
+                  SessionId: 26fc0d75-a64c-4b45-9466-cb8227caf368
+                  AppointmentId: c351ea8b-0796-49ab-8e26-dce4cd101670
+              
 components:
   securitySchemes:
     ApiKeyAuth:
-          type: "apiKey"
-          description: "While the production environment uses the 'Application-restricted RESTful APIs - signed JWT authentication' OAuth2 flow, you may use the 'Try it out' feature in the Integration testing environment by using the 'Key' value from the API key section of your testing App on the NHS Digital Onboarding Service developer account."
-          in: "header"
-          name: "apikey"
+      type: apiKey
+      description: 'While the production environment uses the ''Application-restricted RESTful APIs - signed JWT authentication'' OAuth2 flow, you may use the ''Try it out'' feature in the Integration testing environment by using the ''Key'' value from the API key section of your testing App on the NHS Digital Onboarding Service developer account.'
+      in: header
+      name: apikey
   schemas:
     SESSION:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "SESSION"
+            - SESSION
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NHSNumber:
-          type: "string"
-          pattern: "^[1-9][0-9]{9}$"
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
           minLength: 10
           maxLength: 10
-          description: "The NHS Number of the patient to which the event relates."
-          example: "9876543210"
+          description: The NHS Number of the patient to which the event relates.
+          example: '9876543210'
         Id:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "A unique identifier for the session."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: A unique identifier for the session.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
         isOpenInNHSApp:
-          type: "boolean"
-          description: "Set to true if the session was initiated from a native NHS App journey."
+          type: boolean
+          description: Set to true if the session was initiated from a native NHS App journey.
         Device:
-          type: "string"
-          maxLength: 55
-          description: "The device used by the user during the session."
-          example: "Mozilla/5.0 (Android; Mobile; rv:13.0) Gecko/13.0 Firefox/13.0"
+          type: string
+          maxLength: 512
+          description: The device used by the user during the session. See 14.43 User-Agent
+          example: 'Mozilla/5.0 (Android; Mobile; rv:13.0) Gecko/13.0 Firefox/13.0'
         Status:
-          type: "string"
+          type: string
           maxLength: 25
           enum:
-            - "success"
-            - "dobMissmatch"
-            - "failed"
-          description: "The result of authenicating the user.\n* success: The user was successfully authenticated.\n\n* dobMissmatch: The user was not authenticated because the date of birth in your database does not match the date of birth in the NHS Login ID Token.\n\n * failed: The user failed authentication for any other reason."
+            - success
+            - dobMissmatch
+            - failed
+          description: |-
+            The result of authenicating the user.
+            * success: The user was successfully authenticated.
+            * dobMissmatch: The user was not authenticated because the date of birth in your database does not match the date of birth in the NHS Login ID Token.
+            * failed: The user failed authentication for any other reason.
         TrackingId:
-          type: "string"
-          format: "uuid"
+          type: string
+          format: uuid
           maxLength: 100
-          description: "This attribute is relevant to e-RS and PEPs only. It is used to link NHS App journeys to jump offs to the e-RS and PEP Wayfinder UIs. It is generated by e-RS and PEPs and added as a query parameter to the deeplinks provided by e-RS and PEPs to the Wayfinder Aggregator."
-          example: "95c487ab-d152-4cba-9c75-e8fd91a65906"
+          description: This attribute is mandatory for e-RS and PEPs only. It is used to link NHS App journeys to jump offs to the e-RS and PEP Wayfinder UIs. It is generated by e-RS and PEPs and added as a query parameter to the deeplinks provided by e-RS and PEPs.
+          example: 95c487ab-d152-4cba-9c75-e8fd91a65906
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NHSNumber"
-        - "Id"
-        - "isOpenInNHSApp"
-        - "Status"
+        - EventCode
+        - Timestamp
+        - NHSNumber
+        - Id
+        - isOpenInNHSApp
+        - Status
       additionalProperties: false
-      description: "#### In scope for:\n* NHS login\n* NHS App\n* PEPs\n* Aggregator\n #### Description:\n * The start of a user session for both Wayfinder journeys and journeys native to your service. The Session ID is used in almost every other event in this specification. It is important because the Wayfinder Reporting Service has no other way to know which user events occurred within a single interaction with your service. \n\n #### Notes:\n \n* TrackingId is required by PEPs only when the session was initiated from NHS App. This is used to identify native vs Wayfinder-initiated sessions. \n\n* The SESSION event code was called LOGIN in earlier versions of this specification. \n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * NHS login
+        * NHS App
+        * PEPs
+        * Aggregator
+        #### Description:
+        * The start of a user session for both Wayfinder journeys and journeys native to your service. The Session ID is used in almost every other event in this specification. It is important because the Wayfinder Reporting Service has no other way to know which user events occurred within a single interaction with your service. 
+        #### Notes:
+        * TrackingId is required by PEPs only when the session was initiated from NHS App. This is used to identify native vs Wayfinder-initiated sessions. 
+        * The SESSION event code was called LOGIN in earlier versions of this specification. 
+        * 'User' refers to patients using your service.
     PATIENT:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "PATIENT"
+            - PATIENT
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NHSNumber:
-          type: "string"
-          pattern: "^[1-9][0-9]{9}$"
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
           minLength: 10
           maxLength: 10
-          description: "The NHS Number of the patient."
-          example: "9876543210"
+          description: The NHS Number of the patient.
+          example: '9876543210'
         GP:
-          type: "string"
+          type: string
           maxLength: 5
-          description: "The patient's registered GP Practice ODS Code"
-          example: "N81082"
+          description: The patient's registered GP Practice ODS Code
+          example: N81082
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NHSNumber"
-        - "GP"
+        - EventCode
+        - Timestamp
+        - NHSNumber
+        - GP
       additionalProperties: false
-      description: "#### In scope for:\n* NHS login\n #### Description:\n * The patient entity to which other patient events will be linked via pseudonymised NHS Number. This must be sent when a new patient is registered or and existing patient is updated."
+      description: |-
+        #### In scope for:
+        * NHS login
+        #### Description:
+        * The patient entity to which other patient events will be linked via pseudonymised NHS Number. This must be sent when a new patient is registered or and existing patient is updated.
     PATIENT-PREF:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "PATIENT-PREF"
+            - PATIENT-PREF
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NHSNumber:
-          type: "string"
-          pattern: "^[1-9][0-9]{9}$"
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
           minLength: 10
           maxLength: 10
-          description: "The NHS Number of the patient to which the event relates."
-          example: "9876543210"
+          description: The NHS Number of the patient to which the event relates.
+          example: '9876543210'
         Preference:
-          type: "string"
+          type: string
           maxLength: 255
           enum:
-            - "EmailConsent"
-            - "SMSConsent"
-          description: "The type of preference that was set."
+            - EmailConsent
+            - SMSConsent
+          description: The type of preference that was set.
         OldValue:
-          type: "string"
+          type: string
           maxLength: 255
           enum:
-            - "true"
-            - "false"
-          description: "The previous value of the preference that was set."
-          example: "false"
+            - 'true'
+            - 'false'
+          description: The previous value of the preference that was set.
+          example: 'false'
         NewValue:
-          type: "string"
+          type: string
           maxLength: 255
           enum:
-            - "true"
-            - "false"
-          description: "The new value of the preference that was set."
+            - 'true'
+            - 'false'
+          description: The new value of the preference that was set.
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NHSNumber"
-        - "Preference"
-        - "NewValue"
+        - EventCode
+        - Timestamp
+        - NHSNumber
+        - Preference
+        - NewValue
       additionalProperties: false
-      description: "#### In scope for:\n* NHS App\n* PEPs\n #### Description:\n * A user has updated their preferences. For now, these preferences are limited to consent to receive SMS or email notifications, but we may add more patient preferences in the future.\n\n #### Notes:\n \n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * NHS App
+        * PEPs
+        #### Description:
+        * A user has updated their preferences. For now, these preferences are limited to consent to receive SMS or email notifications, but we may add more patient preferences in the future.
+        #### Notes:
+        * 'User' refers to patients using your service.
     REFERRAL:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "REFERRAL"
+            - REFERRAL
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         Id:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "A Unique identifier for the referral."
-          example: "bc97701e-894f-47dd-9491-e6fab6e73520"
+          description: A Unique identifier for the referral.
+          example: bc97701e-894f-47dd-9491-e6fab6e73520
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "Id"
+        - EventCode
+        - Timestamp
+        - Id
       additionalProperties: false
-      description: "#### In scope for:\n* e-RS\n #### Description:\n * The referral entity to which all other referral events will be linked via Referral ID. This event must be sent when a new referral is created or an existing referral is updated.\n\n#### Notes:\n \n* We require this event to be sent when a referral is updated in order to understand the frequency at which these events occur."
+      description: |-
+        #### In scope for:
+        * e-RS
+        #### Description:
+        * The referral entity to which all other referral events will be linked via Referral ID. This event must be sent when a new referral is created or an existing referral is updated.
+        #### Notes:
+        * We require this event to be sent when a referral is updated in order to understand the frequency at which these events occur.
     REFERRAL-VIEW:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "REFERRAL-VIEW"
+            - REFERRAL-VIEW
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         SessionId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "A unique identifier for the session during which the event occurred."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
         ReferralId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "A unique identifier for the referral to which the event relates."
-          example: "bc97701e-894f-47dd-9491-e6fab6e73520"
+          description: The unique identifier for the referral to which the event relates.
+          example: bc97701e-894f-47dd-9491-e6fab6e73520
         TrackingId:
-          type: "string"
-          format: "uuid"
+          type: string
+          format: uuid
           maxLength: 100
-          description: "This attribute is relevant to e-RS and PEPs only. It is used to link NHS App journeys to jump offs to the e-RS and PEP Wayfinder UIs. It is generated by e-RS and PEPs and added as a query parameter to the deeplinks provided by e-RS and PEPs to the Wayfinder Aggregator."
-          example: "95c487ab-d152-4cba-9c75-e8fd91a65906"
+          description: This attribute is mandatory for the NHS App only. It is used to link NHS App journeys to jump offs to the e-RS and PEP Wayfinder UI's. It is generated by e-RS and PEPs and added as a query parameter to the deeplinks provided by e-RS and PEPs.
+          example: 95c487ab-d152-4cba-9c75-e8fd91a65906
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "SessionId"
-        - "ReferralId"
+        - EventCode
+        - Timestamp
+        - SessionId
+        - ReferralId
       additionalProperties: false
-      description: "#### In scope for:\n* NHS App\n* e-RS\n #### Description:\n * For NHS App, this event must be sent when a summary of a referral has been displayed to a user.\n\n * For e-RS, this event must be sent when a deeplink for a referral has been clicked in the NHS App, resulting in a jump-off to the e-RS Wayfinder UI. \n\n #### Notes:\n \n* For e-RS, if a user navigates to a page displaying information related to the referral, such as a document, and then returns to view the referral then another event MUST NOT be sent. However, if another deeplink jump-off occurs for the same referral another event MUST be sent.\n\n* TrackingId is only mandatory for the NHS App. \n\n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * NHS App
+        * e-RS
+        #### Description:
+        * For NHS App, this event must be sent when a summary of a referral has been displayed to a user.
+        * For e-RS, this event must be sent when a deeplink for a referral has been clicked in the NHS App, resulting in a jump-off to the e-RS Wayfinder UI. 
+        #### Notes:
+        * For e-RS, if a user navigates to a page displaying information related to the referral, such as a document, and then returns to view the referral then another event MUST NOT be sent. However, if another deeplink jump-off occurs for the same referral another event MUST be sent.
+        * TrackingId is only mandatory for the NHS App. 
+        * 'User' refers to patients using your service.
     APPT:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "APPT"
+            - APPT
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NHSNumber:
-          type: "string"
-          pattern: "^[1-9][0-9]{9}$"
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
           minLength: 10
           maxLength: 10
-          description: "The NHS Number of the patient for whom the appointment is booked."
-          example: "9876543210"
+          description: The NHS Number of the patient to which the event relates.
+          example: '9876543210'
         Id:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "A unique identifier for the appointment."
-          example: "0b4576cd-d385-48c3-8ddf-8f7a5133454e"
+          description: A unique identifier for the appointment.
+          example: 0b4576cd-d385-48c3-8ddf-8f7a5133454e
         AppointmentDate:
-          type: "string"
-          format: "date-time"
-          description: "The date and time of the appointment."
-          example: "2024-02-01T10:15:00.000Z"
+          type: string
+          format: date-time
+          description: The date and time of the appointment.
+          example: '2024-02-01T10:15:00.000Z'
         ODSCode:
-          type: "string"
+          type: string
           maxLength: 5
-          description: "The NHS Trust ODS Code for this appointment."
-          example: "RAB"
+          description: NHS Trust ODS Code for which the activity belongs to.
+          example: RAB
         Status:
-          type: "string"
+          type: string
           enum:
-            - "booked"
-            - "fulfilled"
-            - "cancelled"
-            - "noshow"
-            - "checked-in"
-          description: "The appointment status.\n* booked: The appointment has been scheduled with no further activity. \n* fulfilled: The appointment has been attended, regardless of outcome. \n\n* cancelled: The appointment has been cancelled, either by the patient or the care provider.\n\n*  noshow: The patient did not attend their appointment.\n\n* checked-in: The patient was checked-in for their appointment but there is no appointment outcome available."
+            - booked
+            - fulfilled
+            - cancelled
+            - noshow
+            - checked-in
+          description: |-
+            The appointment status.
+            * booked: The appointment has been scheduled with no further activity. 
+            * fulfilled: The appointment has been attended, regardless of outcome. 
+            * cancelled: The appointment has been cancelled, either by the patient or the care provider.
+            * noshow: The patient did not attend their appointment.
+            * checked-in: The patient was checked-in for their appointment but there is no appointment outcome available.
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NHSNumber"
-        - "Id"
-        - "AppointmentDate"
-        - "ODSCode"
+        - EventCode
+        - Timestamp
+        - NHSNumber
+        - Id
+        - AppointmentDate
+        - ODSCode
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * The appointment entity to which all other appointment events will be linked via Appointment ID. This event must be sent when a new appointment is created or an existing appointment is updated.\n\n"
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * The appointment entity to which all other appointment events will be linked via Appointment ID. This event must be sent when a new appointment is created or an existing appointment is updated.
     APPT-VIEW:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "APPT-VIEW"
+            - APPT-VIEW
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         AppointmentId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the appointment to which the event relates."
-          example: "0b4576cd-d385-48c3-8ddf-8f7a5133454e"
+          description: The unique identifier for the appointment to which the event relates.
+          example: 0b4576cd-d385-48c3-8ddf-8f7a5133454e
         SessionId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the session during which this event occurred."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
         TrackingId:
-          type: "string"
-          format: "uuid"
+          type: string
+          format: uuid
           maxLength: 100
-          description: "This attribute is relevant to e-RS and PEPs only. It is used to link NHS App journeys to jump offs to the e-RS and PEP Wayfinder UIs. It is generated by e-RS and PEPs and added as a query parameter to the deeplinks provided by e-RS and PEPs to the Wayfinder Aggregator."
-          example: "95c487ab-d152-4cba-9c75-e8fd91a65906"
+          description: This attribute is mandatory for the NHS App only. It is used to link NHS App journeys to jump offs to the e-RS and PEP Wayfinder UI's. It is generated by e-RS and PEPs and added as a query parameter to the deeplinks provided by e-RS and PEPs.
+          example: 95c487ab-d152-4cba-9c75-e8fd91a65906
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "AppointmentId"
-        - "SessionId"
+        - EventCode
+        - Timestamp
+        - AppointmentId
+        - SessionId
       additionalProperties: false
-      description: "#### In scope for:\n* NHS App\n* PEPs\n* Aggregator\n #### Description:\n * For NHS App, this event must be sent when a summary of a appointment has been displayed to a user. \n\n* For PEPs, this event must be sent when a deeplink for an appointment has been clicked in the NHS App, resulting in a jump-off to the PEP Wayfinder UI. \n\n #### Notes:\n \n* For PEPs, if a user navigates to a page displaying information related to the appointment, such as a document, and then returns to view the appointment then another event MUST NOT be sent. However, if another deeplink jump-off occurs for the same appointment another event MUST be sent. \n\n* TrackingId is only mandatory for the NHS App. \n\n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * NHS App
+        * PEPs
+        * Aggregator
+        #### Description:
+        * For NHS App, this event must be sent when a summary of a appointment has been displayed to a user. 
+        * For PEPs, this event must be sent when a deeplink for an appointment has been clicked in the NHS App, resulting in a jump-off to the PEP Wayfinder UI. 
+        #### Notes:
+        * For PEPs, if a user navigates to a page displaying information related to the appointment, such as a document, and then returns to view the appointment then another event MUST NOT be sent. However, if another deeplink jump-off occurs for the same appointment another event MUST be sent. 
+        * TrackingId is only mandatory for the NHS App. 
+        * 'User' refers to patients using your service.
     APPT-REQUEST-CANC:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "APPT-REQUEST-CANC"
+            - APPT-REQUEST-CANC
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         AppointmentId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "A unique identifier for the appointment to which this event relates"
-          example: "0b4576cd-d385-48c3-8ddf-8f7a5133454e"
+          description: The unique identifier for the appointment to which the event relates.
+          example: 0b4576cd-d385-48c3-8ddf-8f7a5133454e
         SessionId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the session during which this event occurred."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "AppointmentId"
-        - "SessionId"
+        - EventCode
+        - Timestamp
+        - AppointmentId
+        - SessionId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description\n* This event is relevant for PEPs using cancellation request workflows only, i.e. PEPs that are not directly integrated with NHS Trust systems. It must be sent whenever a user makes a request to cancel an appointment.\n\n #### Notes:\n \n* 'User' refers to patients using your service.\n\n "
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description
+        * This event is relevant for PEPs using cancellation request workflows only, i.e. PEPs that are not directly integrated with NHS Trust systems. It must be sent whenever a user makes a request to cancel an appointment.
+        #### Notes:
+        * 'User' refers to patients using your service.
     APPT-REQUEST-RESCH:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "APPT-REQUEST-RESCH"
+            - APPT-REQUEST-RESCH
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         AppointmentId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the appointment to which the event relates."
-          example: "0b4576cd-d385-48c3-8ddf-8f7a5133454e"
+          description: The unique identifier for the appointment to which the event relates.
+          example: 0b4576cd-d385-48c3-8ddf-8f7a5133454e
         SessionId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the session during which this event occurred."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "AppointmentId"
+        - EventCode
+        - Timestamp
+        - AppointmentId
+        - SessionId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description\n* This event is relevant for PEPs using reschedule request workflows only, i.e. PEPs that are not directly integrated with NHS Trust systems. It must be sent whenever a user makes a request to reschedule an appointment.\n\n #### Notes:\n \n* 'User' refers to patients using your service.\n\n"
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description
+        * This event is relevant for PEPs using reschedule request workflows only, i.e. PEPs that are not directly integrated with NHS Trust systems. It must be sent whenever a user makes a request to reschedule an appointment.
+        #### Notes:
+        * 'User' refers to patients using your service.
     APPT-REQUEST-CONFIRM:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "APPT-REQUEST-CONFIRM"
+            - APPT-REQUEST-CONFIRM
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         AppointmentId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the appointment to which the event relates."
-          example: "0b4576cd-d385-48c3-8ddf-8f7a5133454e"
+          description: The unique identifier for the appointment to which the event relates.
+          example: 0b4576cd-d385-48c3-8ddf-8f7a5133454e
         SessionId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the session during which this event occurred."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "AppointmentId"
+        - EventCode
+        - Timestamp
+        - AppointmentId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### A user has confirmed that they intend to attend an upcoming appointment in a PEP UI. \n* \n\n #### Notes:\n \n* 'User' refers to patients using your service.\n\n"
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### A user has confirmed that they intend to attend an upcoming appointment in a PEP UI. 
+        * 
+        #### Notes:
+        * 'User' refers to patients using your service.
     APPT-ATTEND:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "APPT-ATTEND"
+            - APPT-ATTEND
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         AppointmentId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the appointment to which the event relates."
-          example: "0b4576cd-d385-48c3-8ddf-8f7a5133454e"
+          description: The unique identifier for the appointment to which the event relates.
+          example: 0b4576cd-d385-48c3-8ddf-8f7a5133454e
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "AppointmentId"
+        - EventCode
+        - Timestamp
+        - AppointmentId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * A user has confirmed they will attend an appointment in a PEP's UI. \n\n #### Notes:\n \n* This is only relevant for PEPs that allow patients to confirm in advance that they intend to attend an appointment. \n\n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * A user has confirmed they will attend an appointment in a PEP's UI. 
+        #### Notes:
+        * This is only relevant for PEPs that allow patients to confirm in advance that they intend to attend an appointment. 
+        * 'User' refers to patients using your service.
     APPT-CANC:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "APPT-CANC"
+            - APPT-CANC
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         AppointmentId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the appointment to which the event relates."
-          example: "0b4576cd-d385-48c3-8ddf-8f7a5133454e"
+          description: The unique identifier for the appointment to which the event relates.
+          example: 0b4576cd-d385-48c3-8ddf-8f7a5133454e
         Reason:
-          type: "string"
+          type: string
           enum:
-            - "PATIENT"
-            - "HOSPITAL"
-          description: "The reason for the appointment cancellation."
+            - PATIENT
+            - HOSPITAL
+          description: The reason for the appointment cancellation.
       required:
-        - "EventCode"
-        - "Timestamp"
+        - EventCode
+        - Timestamp
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * The appointment status has been recorded as cancelled. \n\n #### Notes:\n \n* This event is expected to be sourced from PEP's trust integrations rather than user activity."
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * The appointment status has been recorded as cancelled. 
+        #### Notes:
+        * This event is expected to be sourced from PEP's trust integrations rather than user activity.
     APPT-RESCH:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "APPT-RESCH"
+            - APPT-RESCH
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         AppointmentId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The Appointment ID of the appointment that was rescheduled."
-          example: "0b4576cd-d385-48c3-8ddf-8f7a5133454e"
+          description: The Appointment ID of the appointment that was rescheduled.
+          example: 0b4576cd-d385-48c3-8ddf-8f7a5133454e
         NewAppointmentId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The Appointment ID of the new (i.e. rescheduled) appointment."
-          example: "368e9981-9679-41db-b9c0-ada32b92a97c"
+          description: The Appointment ID of the new (i.e. rescheduled) appointment.
+          example: 368e9981-9679-41db-b9c0-ada32b92a97c
         Reason:
-          type: "string"
+          type: string
           enum:
-            - "PATIENT"
-            - "HOSPITAL"
-          description: "The reason for the appointment reschedule."
+            - PATIENT
+            - HOSPITAL
+          description: The reason for the appointment reschedule.
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "AppointmentId"
+        - EventCode
+        - Timestamp
+        - AppointmentId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * The appointment status has been recorded as rescheduled. \n\n #### Notes:\n \n* This event is expected to be sourced from PEP's trust integrations rather than user activity."
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * The appointment status has been recorded as rescheduled. 
+        #### Notes:
+        * This event is expected to be sourced from PEP's trust integrations rather than user activity.
     APPT-DNA:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "APPT-DNA"
+            - APPT-DNA
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         AppointmentId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the appointment to which the event relates."
-          example: "0b4576cd-d385-48c3-8ddf-8f7a5133454e"
+          description: The unique identifier for the appointment to which the event relates.
+          example: 0b4576cd-d385-48c3-8ddf-8f7a5133454e
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "AppointmentId"
+        - EventCode
+        - Timestamp
+        - AppointmentId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * The appointment outcome has been recorded as Did Not Attend. \n\n #### Notes:\n \n* This event is expected to be sourced from PEP's trust integrations rather than user activity."
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * The appointment outcome has been recorded as Did Not Attend. 
+        #### Notes:
+        * This event is expected to be sourced from PEP's trust integrations rather than user activity.
+    ADDMISSION:
+      type: object
+      properties:
+        EventCode:
+          type: string
+          enum:
+            - ADDMISSION
+        Timestamp:
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
+        NHSNumber:
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
+          minLength: 10
+          maxLength: 10
+          description: The NHS Number of the patient to which the event relates.
+          example: '9876543210'
+        Id:
+          type: string
+          maxLength: 100
+          description: A unqiue identifier for the inpatient admission.
+          example: 0b4576cd-d385-48c3-8ddf-8f7a5133454e
+        TCIDate:
+          type: string
+          format: date-time
+          description: The date of the activity.
+          example: '2024-02-01T10:15:00.000Z'
+        ODSCode:
+          type: string
+          maxLength: 5
+          description: NHS Trust ODS Code for which the activity belongs to.
+          example: RAB
+        Status:
+          type: string
+          enum:
+            - booked
+            - fulfilled
+            - cancelled
+            - noshow
+            - checked-in
+          description: The admission status status.
+        EncounterClass:
+          type: string
+          enum:
+            - Inpatient
+            - Daycase
+          description: The encounter class.
+      required:
+        - EventCode
+        - Timestamp
+        - NHSNumber
+        - Id
+        - TCIDate
+        - ODSCode
+      additionalProperties: false
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * The Inpatient admission entity to which which all other admissions events will be linked via Appointment ID. This event must be sent when a new inpatient admission is created or an existing inpatient admission is updated.
+    ADDMISSION-VIEW:
+      type: object
+      properties:
+        EventCode:
+          type: string
+          enum:
+            - ADMISSION-VIEW
+        Timestamp:
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
+        SessionId:
+          type: string
+          maxLength: 100
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
+        AppointmentId:
+          type: string
+          maxLength: 100
+          description: The unique identifier for the appointment to which the event relates.
+          example: 0b4576cd-d385-48c3-8ddf-8f7a5133454e
+        TrackingId:
+          type: string
+          format: uuid
+          maxLength: 100
+          description: This attribute is mandatory for the NHS App only. It is used to link NHS App journeys to jump offs to the e-RS and PEP Wayfinder UI's. It is generated by e-RS and PEPs and added as a query parameter to the deeplinks provided by e-RS and PEPs.
+          example: 95c487ab-d152-4cba-9c75-e8fd91a65906
+      required:
+        - EventCode
+        - Timestamp
+        - SessionId
+        - AppointmentId
+      additionalProperties: false
+      description: |-
+        #### In scope for:
+        * NHS App
+        * PEPs
+        * Aggregator
+        #### Description:
+        * For NHS App, this event must be sent when a summary of an inpatinet admission appointment has been displayed to a user. 
+        * For PEPs, this event must be sent when a deeplink for an inpatient admission has been clicked in the NHS App, resulting in a jump-off to the PEP Wayfinder UI. 
+        #### Notes:
+        * For PEPs, if a user navigates to a page displaying information related to the admission, such as a document, and then returns to view the admission then another event MUST NOT be sent. However, if another deeplink jump-off occurs for the same admission another event MUST be sent. 
+        * TrackingId is only mandatory for the NHS App. 
+        * 'User' refers to patients using your service.
+    PATHWAY-VIEW:
+      type: object
+      properties:
+        EventCode:
+          type: string
+          enum:
+            - PATHWAY-VIEW
+        Timestamp:
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
+        SessionId:
+          type: string
+          maxLength: 100
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
+        PathwayId:
+          type: string
+          nullable: true
+        StartDate:
+          type: string
+          format: date-time
+          nullable: true
+        EndDate:
+          type: string
+          format: date-time
+          nullable: true
+        ODSCode:
+          type: string
+          maxLength: 5
+          description: NHS Trust ODS Code for which the activity belongs to.
+          example: RAB
+        SpecialtyCode:
+          type: string
+          nullable: true
+        EstWaitTime:
+          type: integer
+        CensusDate:
+          type: string
+          format: date-time
+      required:
+        - EventCode
+        - Timestamp
+        - SessionId
+        - ODSCode
+        - CensusDate
+      additionalProperties: false
+      description: |-
+        #### In scope for:
+        * NHS App
+        * PEPs
+        * Aggregator
+        #### Description:
+        * A view event where the 'user' has been displayed a summary or detailed view of a given waiting list.
     DOC:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "DOC"
+            - DOC
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NHSNumber:
-          type: "string"
-          pattern: "^[1-9][0-9]{9}$"
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
           minLength: 10
           maxLength: 10
-          description: "The NHS Number of the patient to which the event relates."
-          example: "9876543210"
+          description: The NHS Number of the patient to which the event relates.
+          example: '9876543210'
         Id:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unqiue identifier for the document."
-          example: "510a8470-f507-4e3e-a9e3-56c692ca0170"
+          description: A unqiue identifier for the document.
+          example: 510a8470-f507-4e3e-a9e3-56c692ca0170
         AppointmentId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the appointment to which the event relates."
-          example: "0b4576cd-d385-48c3-8ddf-8f7a5133454e"
+          description: The unique identifier for the appointment to which the event relates.
+          example: 0b4576cd-d385-48c3-8ddf-8f7a5133454e
         DocumentDate:
-          type: "string"
-          format: "date-time"
-          description: "The date and the document was created."
-          example: "2024-02-01T10:15:00.000Z"
+          type: string
+          format: date-time
+          description: The date and the document was created.
+          example: '2024-02-01T10:15:00.000Z'
         DocumentType:
-          type: "string"
+          type: string
           maxLength: 55
           enum:
-            - "Referral letter"
-            - "Appointment Scheduling letter"
-            - "Appointment Outcome letter"
-            - "General update letter"
-          description: "The document type."
+            - Referral letter
+            - Appointment Scheduling letter
+            - Appointment Outcome letter
+            - General update letter
+          description: The document type.
         ODSCode:
-          type: "string"
+          type: string
           maxLength: 5
-          description: "The NHS Trust ODS Code for this document."
-          example: "RAB"
+          description: NHS Trust ODS Code for which the activity belongs to.
+          example: RAB
         Status:
-          type: "string"
+          type: string
           enum:
-            - "Unread"
-            - "Seen"
-            - "Read"
-          description: "The Document read receipt. The status of 'seen' should only be used if your system makes this distinction."
+            - Unread
+            - Seen
+            - Read
+          description: The Document read receipt. The status of `seen` should only be used if your system makes this distinction.
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NHSNumber"
-        - "Id"
-        - "DocumentDate"
-        - "DocumentType"
-        - "ODSCode"
+        - EventCode
+        - Timestamp
+        - NHSNumber
+        - Id
+        - DocumentDate
+        - DocumentType
+        - ODSCode
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * The document entity to which all other document events will be linked via Document ID. \n\n"
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * The document entity to which all other document events will be linked via Document ID.
     DOC-VIEW:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "DOC-VIEW"
+            - DOC-VIEW
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         DocumentId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unqiue identifier for the document to which the event relates."
-          example: "510a8470-f507-4e3e-a9e3-56c692ca0170"
+          description: The unqiue identifier for the document to which the event relates.
+          example: 510a8470-f507-4e3e-a9e3-56c692ca0170
         SessionId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the session during which this event occurred."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
         TrackingId:
-          type: "string"
-          format: "uuid"
+          type: string
+          format: uuid
           maxLength: 100
-          description: "This attribute is relevant to e-RS and PEPs only. It is used to link NHS App journeys to jump offs to the e-RS and PEP Wayfinder UIs. It is generated by e-RS and PEPs and added as a query parameter to the deeplinks provided by e-RS and PEPs to the Wayfinder Aggregator."
-          example: "95c487ab-d152-4cba-9c75-e8fd91a65906"
+          description: This attribute is mandatory for the NHS App only. It is used to link NHS App journeys to jump offs to the e-RS and PEP Wayfinder UI's. It is generated by e-RS and PEPs and added as a query parameter to the deeplinks provided by e-RS and PEPs.
+          example: 95c487ab-d152-4cba-9c75-e8fd91a65906
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "DocumentId"
-        - "SessionId"
+        - EventCode
+        - Timestamp
+        - DocumentId
+        - SessionId
       additionalProperties: false
-      description: "#### In scope for:\n* NHS App\n* PEPs\n #### Description:\n * For NHS App, this event must be sent when a summary of a document has been displayed to a user. \n\n* For PEPs, this event must be sent when a deeplink for an document has been clicked in the NHS App, resulting in a jump-off to the PEP Wayfinder UI. \n\n #### Notes:\n \n* For PEPs, if a user navigates to a page displaying information related to the document and then returns to view the document, another event MUST NOT be sent. However, if another deeplink jump-off occurs for the same document another event MUST be sent. \n\n* TrackingId is only mandatory for the NHS App. \n\n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * NHS App
+        * PEPs
+        #### Description:
+        * For NHS App, this event must be sent when a summary of a document has been displayed to a user. 
+        * For PEPs, this event must be sent when a deeplink for an document has been clicked in the NHS App, resulting in a jump-off to the PEP Wayfinder UI. 
+        #### Notes:
+        * For PEPs, if a user navigates to a page displaying information related to the document and then returns to view the document, another event MUST NOT be sent. However, if another deeplink jump-off occurs for the same document another event MUST be sent. 
+        * TrackingId is only mandatory for the NHS App. 
+        * 'User' refers to patients using your service.
     DOC-OPEN:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "DOC-OPEN"
+            - DOC-OPEN
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         DocumentId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unqiue identifier for the document to which the event relates."
-          example: "510a8470-f507-4e3e-a9e3-56c692ca0170"
+          description: The unqiue identifier for the document to which the event relates.
+          example: 510a8470-f507-4e3e-a9e3-56c692ca0170
         SessionId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the session during which this event occurred."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "DocumentId"
-        - "SessionId"
+        - EventCode
+        - Timestamp
+        - DocumentId
+        - SessionId
       additionalProperties: false
-      # description: "An open event where the user (patient) has opened the binary document for a given document.\n#### Scope (Providers):\n* PEP's"
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * A user has opened the binary file for the document in a PEP UI. \n\n #### Notes:\n \n* This event should be sent every time a document is opened. \n\n* This event must not be sent for thumbnails or any other previews of the binary file displayed to the patient."
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * A user has opened the binary file for the document in a PEP UI. 
+        #### Notes:
+        * This event should be sent every time a document is opened. 
+        * This event must not be sent for thumbnails or any other previews of the binary file displayed to the patient.
     QUEST:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "QUEST"
+            - QUEST
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NHSNumber:
-          type: "string"
-          pattern: "^[1-9][0-9]{9}$"
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
           minLength: 10
           maxLength: 10
-          description: "The NHS Number of the patient to which the event relates."
-          example: "9876543210"
+          description: The NHS Number of the patient to which the event relates.
+          example: '9876543210'
         Id:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "A unqiue identifier for this questionnaire."
-          example: "4e561c42-a949-4bfb-99b0-671a87698bf8"
+          description: A unqiue identifier for the questionnaire.
+          example: 4e561c42-a949-4bfb-99b0-671a87698bf8
         AppointmentId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the appointment to which the questionnaire relates."
-          example: "0b4576cd-d385-48c3-8ddf-8f7a5133454e"
+          description: The unique identifier for the appointment to which the event relates.
+          example: 0b4576cd-d385-48c3-8ddf-8f7a5133454e
         QuestionnaireDate:
-          type: "string"
-          format: "date-time"
-          description: "The date the questionnaire was created."
-          example: "2024-02-01T10:15:00.000Z"
+          type: string
+          format: date-time
+          description: The date the questionnaire was created.
+          example: '2024-02-01T10:15:00.000Z'
         QuestionnaireType:
-          type: "string"
+          type: string
           maxLength: 55
           enum:
-            - "Pre-appointment questionnaire"
-            - "Post-appointment questionnaire"
-            - "General update questionnaire"
-          description: "The type of questionnaire, e.g. a pre-appointment questionnaire."
+            - Pre-appointment questionnaire
+            - Post-appointment questionnaire
+            - General update questionnaire
+          description: 'The type of questionnaire, e.g. a pre-appointment questionnaire.'
         ODSCode:
-          type: "string"
+          type: string
           maxLength: 5
-          description: "NHS Trust ODS Code for this questionnaire."
-          example: "RAB"
+          description: NHS Trust ODS Code for which the activity belongs to.
+          example: RAB
         Status:
-          type: "string"
+          type: string
           enum:
-            - "requested"
-            - "cancelled"
-            - "in-progress"
-            - "completed"
-          description: "The status of the questionnaire, e.g. 'completed'"
+            - requested
+            - cancelled
+            - in-progress
+            - completed
+          description: 'The status of the questionnaire, e.g. `completed`'
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NHSNumber"
-        - "Id"
-        - "QuestionnaireDate"
-        - "QuestionnaireType"
-        - "ODSCode"
+        - EventCode
+        - Timestamp
+        - NHSNumber
+        - Id
+        - QuestionnaireDate
+        - QuestionnaireType
+        - ODSCode
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * The questionnaire entity to which all other questionnaire events will be linked via Questionnaire ID. This event must be sent when a new questionnaire is created or an existing questionnaire is updated. \n\n"
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * The questionnaire entity to which all other questionnaire events will be linked via Questionnaire ID. This event must be sent when a new questionnaire is created or an existing questionnaire is updated.
     QUEST-VIEW:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "QUEST-VIEW"
+            - QUEST-VIEW
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         SessionId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the session during which this event occurred."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
         QuestionnaireId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unqiue identifier for the questionnaire to which the event relates."
-          example: "4e561c42-a949-4bfb-99b0-671a87698bf8"
+          description: The unqiue identifier for the questionnaire to which the event relates.
+          example: 4e561c42-a949-4bfb-99b0-671a87698bf8
         TrackingId:
-          type: "string"
-          format: "uuid"
+          type: string
+          format: uuid
           maxLength: 100
-          description: "This attribute is relevant to e-RS and PEPs only. It is used to link NHS App journeys to jump offs to the e-RS and PEP Wayfinder UIs. It is generated by e-RS and PEPs and added as a query parameter to the deeplinks provided by e-RS and PEPs to the Wayfinder Aggregator."
-          example: "95c487ab-d152-4cba-9c75-e8fd91a65906"
+          description: This attribute is mandatory for the NHS App only. It is used to link NHS App journeys to jump offs to the e-RS and PEP Wayfinder UI's. It is generated by e-RS and PEPs and added as a query parameter to the deeplinks provided by e-RS and PEPs.
+          example: 95c487ab-d152-4cba-9c75-e8fd91a65906
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "SessionId"
-        - "QuestionnaireId"
+        - EventCode
+        - Timestamp
+        - SessionId
+        - QuestionnaireId
       additionalProperties: false
-      description: "#### In scope for:\n* NHS App\n* PEPs\n #### Description:\n * For NHS App, this event must be sent when a summary of a questionnaire has been displayed to a user. \n\n* For PEPs, this event must be sent when a deeplink for a questionnaire has been clicked in the NHS App, resulting in a jump-off to the PEP Wayfinder UI. \n\n #### Notes:\n \n* For PEPs, if a user navigates to a page displaying information related to the questionnaire and then returns to view the questionnaire, another event MUST NOT be sent. However, if another deeplink jump-off occurs for the same questionnaire another event MUST be sent. \n\n* TrackingId is only mandatory for the NHS App. \n\n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * NHS App
+        * PEPs
+        #### Description:
+        * For NHS App, this event must be sent when a summary of a questionnaire has been displayed to a user. 
+        * For PEPs, this event must be sent when a deeplink for a questionnaire has been clicked in the NHS App, resulting in a jump-off to the PEP Wayfinder UI. 
+        #### Notes:
+        * For PEPs, if a user navigates to a page displaying information related to the questionnaire and then returns to view the questionnaire, another event MUST NOT be sent. However, if another deeplink jump-off occurs for the same questionnaire another event MUST be sent. 
+        * TrackingId is only mandatory for the NHS App. 
+        * 'User' refers to patients using your service.
     QUEST-STARTED:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "QUEST-STARTED"
+            - QUEST-STARTED
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         SessionId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the session during which this event occurred."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
         QuestionnaireId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unqiue identifier for the questionnaire to which the event relates."
-          example: "4e561c42-a949-4bfb-99b0-671a87698bf8"
+          description: The unqiue identifier for the questionnaire to which the event relates.
+          example: 4e561c42-a949-4bfb-99b0-671a87698bf8
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "QuestionnaireId"
+        - EventCode
+        - Timestamp
+        - QuestionnaireId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * A user has started to complete a questionnaire. \n\n #### Notes:\n \n* 'User' refers to patients using your service. \n\n"
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * A user has started to complete a questionnaire. 
+        #### Notes:
+        * 'User' refers to patients using your service.
     QUEST-COMPLETE:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "QUEST-COMPLETE"
+            - QUEST-COMPLETE
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         SessionId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the session during which this event occurred."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
         QuestionnaireId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unqiue identifier for the questionnaire to which the event relates."
-          example: "4e561c42-a949-4bfb-99b0-671a87698bf8"
+          description: The unqiue identifier for the questionnaire to which the event relates.
+          example: 4e561c42-a949-4bfb-99b0-671a87698bf8
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "QuestionnaireId"
+        - EventCode
+        - Timestamp
+        - QuestionnaireId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * A user has completed a questionnaire. \n\n #### Notes:\n \n* 'User' refers to patients using your service. \n\n"
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * A user has completed a questionnaire. 
+        #### Notes:
+        * 'User' refers to patients using your service.
     QUEST-REVOKED:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "QUEST-REVOKED"
+            - QUEST-REVOKED
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         SessionId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the session during which this event occurred."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
         QuestionnaireId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unqiue identifier for the questionnaire to which the event relates."
-          example: "4e561c42-a949-4bfb-99b0-671a87698bf8"
+          description: The unqiue identifier for the questionnaire to which the event relates.
+          example: 4e561c42-a949-4bfb-99b0-671a87698bf8
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "QuestionnaireId"
+        - EventCode
+        - Timestamp
+        - QuestionnaireId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * A questionnaire has been revoked by an NHS Trust, for example if it was created in error. \n\n"
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * A questionnaire has been revoked by an NHS Trust, for example if it was created in error.
     NOTIFY:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY"
+            - NOTIFY
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NHSNumber:
-          type: "string"
-          pattern: "^[1-9][0-9]{9}$"
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
           minLength: 10
           maxLength: 10
-          description: "The NHS Number of the patient to which the event relates."
-          example: "9876543210"
+          description: The NHS Number of the patient to which the event relates.
+          example: '9876543210'
         Id:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "A unqiue identifier for the notification."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: A unqiue identifier for the notification.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
         Type:
-          type: "string"
+          type: string
           maxLength: 25
           enum:
-            - "SMS"
-            - "Email"
-            - "Letter"
-            - "NHSApp"
-          description: "The mediun through which the notification was sent, e.g. SMS."
+            - SMS
+            - Email
+            - Letter
+            - NHSApp
+          description: 'The mediun through which the notification was sent, e.g. SMS.'
         EntityId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the appointment, document or questionnaire to which the notification relates."
-          example: "71d0edf6-12ae-42e1-b1b9-268f573f9f5c"
+          description: 'The unique identifier for the appointment, document or questionnaire to which the notification relates.'
+          example: 8ab57a85-5fde-44ca-838a-5d692275d438
         NotificationType:
-          type: "string"
+          type: string
           maxLength: 55
           enum:
-            - "Referral"
-            - "Appointment Scheduling notification"
-            - "Appointment reminder"
-            - "Appointment Outcome notification"
-            - "Document Notification"
-            - "Questionnaire Notification"
-          description: "The type of notification, e.g. a notification that a new document is available to view."
+            - Referral
+            - Appointment Scheduling notification
+            - Appointment reminder
+            - Appointment Outcome notification
+            - Document Notification
+            - Questionnaire Notification
+          description: 'The type of notification, e.g. a notification that a new document is available to view.'
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NHSNumber"
-        - "Id"
-        - "Type"
-        - "EntityId"
-        - "NotificationType"
+        - EventCode
+        - Timestamp
+        - NHSNumber
+        - Id
+        - Type
+        - EntityId
+        - NotificationType
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * The notification entity to which all other notification events will be linked via Notification ID. This event must be sent when a new notification is created or an existing notification is updated. \n\n"
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * The notification entity to which all other notification events will be linked via Notification ID. This event must be sent when a new notification is created or an existing notification is updated.
     NOTIFY-SMS-REQUEST:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY-SMS-REQUEST"
+            - NOTIFY-SMS-REQUEST
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NotificationId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the notification to which the event relates."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: The unique identifier for the notification to which the event relates.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NotificationId"
+        - EventCode
+        - Timestamp
+        - NotificationId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * A PEP has sent their SMS provider a request to send an SMS message to the user for the notification. \n\n #### Notes:\n \n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * A PEP has sent their SMS provider a request to send an SMS message to the user for the notification. 
+        #### Notes:
+        * 'User' refers to patients using your service.
     NOTIFY-SMS-RECEIPT:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY-SMS-RECEIPT"
+            - NOTIFY-SMS-RECEIPT
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NotificationId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the notification to which the event relates."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: The unique identifier for the notification to which the event relates.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
         Status:
-          type: "string"
+          type: string
           enum:
-            - "requested"
-            - "delivered"
-            - "failed"
-          description: "The status of the delivery of the notification.\n\nNote: the requested status is optional."
+            - requested
+            - delivered
+            - failed
+          description: |-
+            The status of the delivery of the notification.
+            Note: the requested status is optional.
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NotificationId"
-        - "Status"
+        - EventCode
+        - Timestamp
+        - NotificationId
+        - Status
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * A PEP has received delivery confirmation from their SMS provider for the SMS notification. \n\n"
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * A PEP has received delivery confirmation from their SMS provider for the SMS notification.
     NOTIFY-SMS-CTA:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY-SMS-CTA"
+            - NOTIFY-SMS-CTA
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NotificationId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the notification to which the event relates."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: The unique identifier for the notification to which the event relates.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
         TrackingId:
-          type: "string"
-          format: "uuid"
+          type: string
+          format: uuid
           maxLength: 100
-          description: "This attribute is mandatory for the NHS App only. It is used to link jump-offs from NHS App native notifications to PEP Wayfinder UIs via the Call to Action (CTA) deeplink contained in the notification."
-          example: "95c487ab-d152-4cba-9c75-e8fd91a65906"
+          description: This attribute is used to link jump-offs from notifications to PEP Wayfinder UIs via the Call to Action (CTA) deeplink contained in the notification.
+          example: 95c487ab-d152-4cba-9c75-e8fd91a65906
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NotificationId"
-        - "TrackingId"
+        - EventCode
+        - Timestamp
+        - NotificationId
+        - TrackingId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * A user has clicked the Call to Action (CTA) link contained in the SMS notification message\n\n #### Notes:\n \n* TrackingId is only mandatory for the NHS App. \n\n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * A user has clicked the Call to Action (CTA) link contained in the SMS notification message
+        #### Notes:
+        * TrackingId is only mandatory for the NHS App. 
+        * 'User' refers to patients using your service.
     NOTIFY-EMAIL-REQUEST:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY-EMAIL-REQUEST"
+            - NOTIFY-EMAIL-REQUEST
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NotificationId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the notification to which the event relates."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: The unique identifier for the notification to which the event relates.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NotificationId"
+        - EventCode
+        - Timestamp
+        - NotificationId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * A PEP has sent their email provider a request to send an email to the user for the notification. \n\n #### Notes:\n \n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * A PEP has sent their email provider a request to send an email to the user for the notification. 
+        #### Notes:
+        * 'User' refers to patients using your service.
     NOTIFY-EMAIL-RECEIPT:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY-EMAIL-RECEIPT"
+            - NOTIFY-EMAIL-RECEIPT
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NotificationId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the notification to which the event relates."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: The unique identifier for the notification to which the event relates.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
         Status:
-          type: "string"
+          type: string
           enum:
-            - "requested"
-            - "delivered"
-            - "failed"
-          description: "The status of the delivery of the notification.\n\nNote: the requested status is optional."
+            - requested
+            - delivered
+            - failed
+          description: |-
+            The status of the delivery of the notification.
+            Note: the requested status is optional.
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NotificationId"
-        - "Status"
+        - EventCode
+        - Timestamp
+        - NotificationId
+        - Status
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * A PEP has received delivery confirmation from their email provider for the email notification. \n\n"
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * A PEP has received delivery confirmation from their email provider for the email notification.
     NOTIFY-EMAIL-OPEN:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY-EMAIL-OPEN"
+            - NOTIFY-EMAIL-OPEN
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NotificationId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the notification to which the event relates."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: The unique identifier for the notification to which the event relates.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NotificationId"
+        - EventCode
+        - Timestamp
+        - NotificationId
       additionalProperties: false
-      # description: "Email Open event where it is known that the user (patient) has opened the email for a given notification.\n#### Scope (Providers):\n* PEP's"
-      description: "#### Description:\n * A user has opened the notification email \n\n #### Notes:\n \n* 'User' refers to patients using your service. \n* This is not required if the information is not available."
+      description: |-
+        #### Description:
+        * A user has opened the notification email 
+        #### Notes:
+        * 'User' refers to patients using your service. 
+        * This is not required if the information is not available.
     NOTIFY-EMAIL-CTA:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY-EMAIL-CTA"
+            - NOTIFY-EMAIL-CTA
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NotificationId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the notification to which the event relates."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: The unique identifier for the notification to which the event relates.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
         TrackingId:
-          type: "string"
-          format: "uuid"
+          type: string
+          format: uuid
           maxLength: 100
-          description: "This attribute is mandatory for the NHS App only. It is used to link jump-offs from NHS App native notifications to PEP Wayfinder UIs via the Call to Action (CTA) deeplink contained in the notification."
-          example: "95c487ab-d152-4cba-9c75-e8fd91a65906"
+          description: This attribute is used to link jump-offs from notifications to PEP Wayfinder UIs via the Call to Action (CTA) deeplink contained in the notification.
+          example: 95c487ab-d152-4cba-9c75-e8fd91a65906
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NotificationId"
-        - "TrackingId"
+        - EventCode
+        - Timestamp
+        - NotificationId
+        - TrackingId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * A user has clicked the Call to Action (CTA) link contained in the email notification\n\n #### Notes:\n \n* TrackingId is only mandatory for the NHS App. \n\n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * A user has clicked the Call to Action (CTA) link contained in the email notification
+        #### Notes:
+        * TrackingId is only mandatory for the NHS App. 
+        * 'User' refers to patients using your service.
     NOTIFY-LETTER-REQUEST:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY-LETTER-REQUEST"
+            - NOTIFY-LETTER-REQUEST
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NotificationId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the notification to which the event relates."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: The unique identifier for the notification to which the event relates.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NotificationId"
+        - EventCode
+        - Timestamp
+        - NotificationId
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description:\n * A PEP has sent their mail provider a request to send a letter to the user for the notification. \n\n #### Notes:\n \n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description:
+        * A PEP has sent their mail provider a request to send a letter to the user for the notification. 
+        #### Notes:
+        * 'User' refers to patients using your service.
     NOTIFY-LETTER-RECEIPT:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY-LETTER-RECEIPT"
+            - NOTIFY-LETTER-RECEIPT
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NotificationId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the notification to which the event relates."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: The unique identifier for the notification to which the event relates.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
         Status:
-          type: "string"
+          type: string
           enum:
-            - "requested"
-            - "failed"
-          description: "The status of the delivery of the letter.\n\nNote: the requested status is optional."
+            - requested
+            - delivered
+            - failed
+          description: |-
+            The status of the delivery of the notification.
+            Note: the requested status is optional.
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NotificationId"
-        - "Status"
+        - EventCode
+        - Timestamp
+        - NotificationId
+        - Status
       additionalProperties: false
-      description: "#### In scope for:\n* PEPs\n #### Description\n The mail provider has confirmed that the physical letter has been delivered or that the delivery failed.\n"
+      description: |-
+        #### In scope for:
+        * PEPs
+        #### Description
+        The mail provider has confirmed that the physical letter has been delivered or that the delivery failed.
     NOTIFY-APP-REQUEST:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY-APP-REQUEST"
+            - NOTIFY-APP-REQUEST
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NotificationId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the notification to which the event relates."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: The unique identifier for the notification to which the event relates.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NotificationId"
+        - EventCode
+        - Timestamp
+        - NotificationId
       additionalProperties: false
-      description: "#### In scope for:\n* NHS App\n* PEPs\n #### Description:\n * A PEP has requested a push notification from the NHS App to a user \n\n #### Notes:\n \n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * NHS App
+        * PEPs
+        #### Description:
+        * A PEP has requested a in-app message from the NHS App to a user 
+        #### Notes:
+        * 'User' refers to patients using your service.
     NOTIFY-APP-RECEIPT:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY-APP-RECEIPT"
+            - NOTIFY-APP-RECEIPT
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NotificationId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the notification to which the event relates."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: The unique identifier for the notification to which the event relates.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
         Status:
-          type: "string"
+          type: string
           enum:
-            - "requested"
-            - "delivered"
-            - "failed"
-          description: "The status of the delivery of the notification.\n\nNote: the requested status is optional."
+            - requested
+            - delivered
+            - failed
+          description: |-
+            The status of the delivery of the notification.
+            Note: the requested status is optional.
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NotificationId"
-        - "Status"
+        - EventCode
+        - Timestamp
+        - NotificationId
+        - Status
       additionalProperties: false
-      description: "#### In scope for:\n* NHS App\n* PEPs\n #### Description:\n * Confirmation of delivery of a push notification sent from a PEP via the NHS App \n\n"
+      description: |-
+        #### In scope for:
+        * NHS App
+        * PEPs
+        #### Description:
+        * Confirmation of delivery of a in-app message sent from a PEP via the NHS App
     NOTIFY-APP-OPEN:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY-APP-OPEN"
+            - NOTIFY-APP-OPEN
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NotificationId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the notification to which the event relates."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: The unique identifier for the notification to which the event relates.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
         SessionId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the session during which this event occurred."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NotificationId"
+        - EventCode
+        - Timestamp
+        - NotificationId
       additionalProperties: false
-      description: "#### In scope for:\n* NHS App\n* PEPs\n #### Description:\n * Confirmation that a user has opened a push notification sent from PEP via the NHS App\n\n #### Notes:\n \n* SessionId is required for NHS App but optional for PEPs. \n\n* 'User' refers to patients using your service."
+      description: |-
+        #### In scope for:
+        * NHS App
+        * PEPs
+        #### Description:
+        * Confirmation that a user has opened a in-app message sent from PEP via the NHS App
+        #### Notes:
+        * SessionId is required for NHS App but optional for PEPs. 
+        * 'User' refers to patients using your service.
     NOTIFY-APP-CTA:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "NOTIFY-APP-CTA"
+            - NOTIFY-APP-CTA
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NotificationId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the notification to which the event relates."
-          example: "d0afd8e4-3621-4753-a3a3-49b65418e2be"
+          description: The unique identifier for the notification to which the event relates.
+          example: d0afd8e4-3621-4753-a3a3-49b65418e2be
         SessionId:
-          type: "string"
+          type: string
           maxLength: 100
-          description: "The unique identifier for the session during which this event occurred."
-          example: "54a8a95a-5663-4e43-8796-a1e8634ea1c0"
+          description: The unique identifier for the session during which this event occurred.
+          example: 54a8a95a-5663-4e43-8796-a1e8634ea1c0
         TrackingId:
-          type: "string"
-          format: "uuid"
+          type: string
+          format: uuid
           maxLength: 100
-          description: "This attribute is mandatory for the NHS App only. It is used to link jump-offs from NHS App native notifications to PEP Wayfinder UIs via the Call to Action (CTA) deeplink contained in the notification."
-          example: "95c487ab-d152-4cba-9c75-e8fd91a65906"
+          description: This attribute is used to link jump-offs from NHS App native notifications to PEP Wayfinder UIs via the Call to Action (CTA) deeplink contained in the notification.
+          example: 95c487ab-d152-4cba-9c75-e8fd91a65906
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NotificationId"
-        - "TrackingId"
+        - EventCode
+        - Timestamp
+        - NotificationId
       additionalProperties: false
-      description: "#### In scope for:\n* NHS App\n* PEPs\n #### Description:\n* A user has clicked the Call to Action (CTA) in a push notification sent from a PEP via the NHS App.\n\n #### Notes:\n \n* SessionId is required for NHS App but optional for PEPs. \n\n* TrackingId is only mandatory for the NHS App."
+      description: |-
+        #### In scope for:
+        * NHS App
+        * PEPs
+        #### Description:
+        * A user has clicked the Call to Action (CTA) in a in-app message sent from a PEP via the NHS App.
+        #### Notes:
+        * SessionId is required for NHS App but optional for PEPs. 
+        * TrackingId is only mandatory for the NHS App.
     RS-APPT-POST:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "RS-APPT-POST"
+            - RS-APPT-POST
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NHSNumber:
-          type: "string"
-          pattern: "^[1-9][0-9]{9}$"
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
           minLength: 10
           maxLength: 10
-          description: "The NHS Number of the patient to which the event relates."
-          example: "9876543210"
+          description: The NHS Number of the patient to which the event relates.
+          example: '9876543210'
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NHSNumber"
+        - EventCode
+        - Timestamp
+        - NHSNumber
       additionalProperties: false
-      description: "#### In scope for:\n* Aggregator\n #### Description:\n * An NHS Number has been posted to record service."
+      description: |-
+        #### In scope for:
+        * Aggregator
+        #### Description:
+        * An NHS Number has been posted to record service.
     RS-APPT-DELETE:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "RS-APPT-DELETE"
+            - RS-APPT-DELETE
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NHSNumber:
-          type: "string"
-          pattern: "^[1-9][0-9]{9}$"
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
           minLength: 10
           maxLength: 10
-          description: "The NHS Number of the patient to which the event relates."
-          example: "9876543210"
+          description: The NHS Number of the patient to which the event relates.
+          example: '9876543210'
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NHSNumber"
+        - EventCode
+        - Timestamp
+        - NHSNumber
       additionalProperties: false
-      description: "#### In scope for:\n* Aggregator\n #### Description:\n * An NHS Number has been deleted from the record service."
+      description: |-
+        #### In scope for:
+        * Aggregator
+        #### Description:
+        * An NHS Number has been deleted from the record service.
     RS-DOC-POST:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "RS-DOC-POST"
+            - RS-DOC-POST
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NHSNumber:
-          type: "string"
-          pattern: "^[1-9][0-9]{9}$"
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
           minLength: 10
           maxLength: 10
-          description: "The NHS Number of the patient to which the event relates."
-          example: "9876543210"
+          description: The NHS Number of the patient to which the event relates.
+          example: '9876543210'
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NHSNumber"
+        - EventCode
+        - Timestamp
+        - NHSNumber
       additionalProperties: false
-      description: "#### In scope for:\n* Aggregator\n #### Description:\n * An NHS Number has been posted to record service."
+      description: |-
+        #### In scope for:
+        * Aggregator
+        #### Description:
+        * An NHS Number has been posted to record service.
     RS-DOC-DELETE:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "RS-DOC-DELETE"
+            - RS-DOC-DELETE
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NHSNumber:
-          type: "string"
-          pattern: "^[1-9][0-9]{9}$"
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
           minLength: 10
           maxLength: 10
-          description: "The NHS Number of the patient to which the event relates."
-          example: "9876543210"
+          description: The NHS Number of the patient to which the event relates.
+          example: '9876543210'
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NHSNumber"
+        - EventCode
+        - Timestamp
+        - NHSNumber
       additionalProperties: false
-      description: "#### In scope for:\n* Aggregator\n #### Description:\n * An NHS Number has been deleted from the record service."
+      description: |-
+        #### In scope for:
+        * Aggregator
+        #### Description:
+        * An NHS Number has been deleted from the record service.
     RS-QUEST-POST:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "RS-QUEST-POST"
+            - RS-QUEST-POST
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NHSNumber:
-          type: "string"
-          pattern: "^[1-9][0-9]{9}$"
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
           minLength: 10
           maxLength: 10
-          description: "The NHS Number of the patient to which the event relates."
-          example: "9876543210"
+          description: The NHS Number of the patient to which the event relates.
+          example: '9876543210'
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NHSNumber"
+        - EventCode
+        - Timestamp
+        - NHSNumber
       additionalProperties: false
-      description: "#### In scope for:\n* Aggregator\n #### Description:\n * An NHS Number has been posted to record service."
+      description: |-
+        #### In scope for:
+        * Aggregator
+        #### Description:
+        * An NHS Number has been posted to record service.
     RS-QUEST-DELETE:
-      type: "object"
+      type: object
       properties:
         EventCode:
-          type: "string"
+          type: string
           enum:
-            - "RS-QUEST-DELETE"
+            - RS-QUEST-DELETE
         Timestamp:
-          type: "string"
-          format: "date-time"
-          description: "A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred."
-          example: "2024-03-08T08:45:11.321Z"
+          type: string
+          format: date-time
+          description: A timestamp to millisecond precision in UTC ISO 8601 format for when the event occurred.
+          example: '2024-03-08T08:45:11.321Z'
         NHSNumber:
-          type: "string"
-          pattern: "^[1-9][0-9]{9}$"
+          type: string
+          pattern: '^[1-9][0-9]{9}$'
           minLength: 10
           maxLength: 10
-          description: "The NHS Number of the patient to which the event relates."
-          example: "9876543210"
+          description: The NHS Number of the patient to which the event relates.
+          example: '9876543210'
       required:
-        - "EventCode"
-        - "Timestamp"
-        - "NHSNumber"
+        - EventCode
+        - Timestamp
+        - NHSNumber
       additionalProperties: false
-      description: "#### In scope for:\n* Aggregator\n #### Description:\n * An NHS Number has been deleted from the record service."
+      description: |-
+        #### In scope for:
+        * Aggregator
+        #### Description:
+        * An NHS Number has been deleted from the record service.
+    
   responses:
     ValidRequest:
-      description: "OK"
+      description: OK
       headers:
         X-Correlation-ID:
           schema:
-            type: "string"
-            format: "uuid"
-            example: "af652e7c-0581-4ccb-bbc2-fa5509e0929d"
-          description: "GUID echoed back when provided in the request."
+            type: string
+            format: uuid
+            example: af652e7c-0581-4ccb-bbc2-fa5509e0929d
+          description: GUID echoed back when provided in the request.
       content:
         application/json:
           schema:
-            type: "object"
+            type: object
             properties:
               status:
-                type: "string"
-                example: "ok"
+                type: string
+                example: ok
     InvalidRequest:
-      description: "**Invalid request** validation failed. If the request contains any invalid events, the entire request will be returned invalid and no events will have been accepted. The index of the first error will be returned in the response."
+      description: '**Invalid request** validation failed. If the request contains any invalid events, the entire request will be returned invalid and no events will have been accepted. The index of the first error will be returned in the response.'
       headers:
         X-Correlation-ID:
           schema:
-            type: "string"
-            format: "uuid"
-            example: "af652e7c-0581-4ccb-bbc2-fa5509e0929d"
-          description: "GUID echoed back when provided in the request."
+            type: string
+            format: uuid
+            example: af652e7c-0581-4ccb-bbc2-fa5509e0929d
+          description: GUID echoed back when provided in the request.
       content:
         application/json:
           schema:
-            type: "object"
+            type: object
             properties:
               message:
-                type: "string"
-                example: "\"[0]\" does not match any of the allowed types"
+                type: string
+                example: 'validation error for {event-name} event at index [{index}]: {validation-error}'
     UnauthorizedError:
-      description: "**Unauthorised** Access token is missing or invalid"
+      description: '**Unauthorised** Access token is missing or invalid'
       headers:
         X-Correlation-ID:
           schema:
-            type: "string"
-            format: "uuid"
-            example: "af652e7c-0581-4ccb-bbc2-fa5509e0929d"
-          description: "GUID echoed back when provided in the request."
+            type: string
+            format: uuid
+            example: af652e7c-0581-4ccb-bbc2-fa5509e0929d
+          description: GUID echoed back when provided in the request.
       content:
         application/json:
           schema:
-            type: "object"
+            type: object
             properties:
               fault:
-                type: "object"
+                type: object
                 properties:
                   faultstring:
-                    type: "string"
-                    example: "Access Token expired"
+                    type: string
+                    example: Access Token expired
                   detail:
-                    type: "object"
+                    type: object
                     properties:
                       errorcode:
-                        type: "string"
-                        example: "keymanagement.service.access_token_expired"
+                        type: string
+                        example: keymanagement.service.access_token_expired
 security:
   - ApiKeyAuth: []
