@@ -128,7 +128,11 @@ info:
     | Patient Care Aggregator Reporting API | Source code for the API proxy, sandbox and specification.  | [GitHub repo](https://github.com/NHSDigital/patient-care-aggregator-reporting) |                                    
     | FHIR libraries and SDKs               | Various open source libraries for integrating with FHIR APIs.| [FHIR libraries and SDKs](https://digital.nhs.uk/developer/guides-and-documentation/api-technologies-at-nhs-digital#fhir-libraries-and-sdks) |
 
-    We currently don't have any open source client libraries or sample code for this API. If you think this would be useful, you can upvote the suggestion on our Interactive Product Backlog.
+    We currently don't have any open source client libraries or sample code for this API. If you think this would be useful, you can [contact us](https://digital.nhs.uk/developer/help-and-support).
+
+    ## Contact us
+    For help and support connecting to our APIs and to join our developer community, see [Help and support building healthcare software](https://digital.nhs.uk/developer/help-and-support).
+
 servers:
   - url: 'https://int.api.service.nhs.uk/patient-care-aggregator-reporting/'
     description: Integration (AOS)
