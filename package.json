@@ -11,7 +11,7 @@
   "license": "MIT",
   "homepage": "https://github.com/NHSDigital/patient-care-aggregator-reporting",
   "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.5.1",
+    "@openapitools/openapi-generator-cli": "^2.7.0",
     "apigeetool": "^0.5.4",
     "license-checker": "^25.0.1",
     "minimist": "^1.2.2"
