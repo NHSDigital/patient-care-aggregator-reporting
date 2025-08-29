@@ -1,7 +1,6 @@
 name: "$(SourceBranchName)+$(BuildID)"
 
 trigger: none
-pr: none
 
 resources:
   repositories:
@@ -19,6 +18,9 @@ resources:
           - master
           - refs/heads/master
           - refs/tags/v*
+pr:
+  branches:
+    include: ['*']
 
 pool:
   name: 'AWS-ECS'
