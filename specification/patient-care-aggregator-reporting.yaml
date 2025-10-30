@@ -3,7 +3,7 @@
 openapi: 3.0.3
 info:
   title: Wayfinder Reporting Service
-  version: v2.6.0
+  version: v2.6.1
   description: |
 
     ## Overview
@@ -1187,6 +1187,7 @@ components:
             - Pre-appointment questionnaire
             - Post-appointment questionnaire
             - General update questionnaire
+            - pifu-triage
           description: 'The type of questionnaire, e.g. a pre-appointment questionnaire.'
         ODSCode:
           type: string
@@ -1255,7 +1256,7 @@ components:
         * PEPs
         #### Description:
         * For NHS App, this event must be sent when a summary of a questionnaire has been displayed to a user. 
-        * For PEPs, this event must be sent when a deeplink for a questionnaire has been clicked in the NHS App, resulting in a jump-off to the PEP Wayfinder UI. 
+        * For PEPs, this event must be sent when a deeplink for a questionnaire has been clicked in the NHS App, resulting in a jump-off to the PEP Wayfinder UI. For PIFU, this event must be sent when the deeplink from the 'Manage your patient initiated follow-up' has been clicked, either for starting a new PIFU request or viewing a previously completed request.
         #### Notes:
         * For PEPs, if a user navigates to a page displaying information related to the questionnaire and then returns to view the questionnaire, another event MUST NOT be sent. However, if another deeplink jump-off occurs for the same questionnaire another event MUST be sent. 
         * TrackingId is only mandatory for the NHS App. 
