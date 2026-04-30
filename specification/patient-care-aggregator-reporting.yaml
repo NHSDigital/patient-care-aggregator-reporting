@@ -196,8 +196,8 @@ paths:
                   - $ref: '#/components/schemas/APPT-CANC'
                   - $ref: '#/components/schemas/APPT-RESCH'
                   - $ref: '#/components/schemas/APPT-DNA'
-                  - $ref: '#/components/schemas/ADDMISSION'
-                  - $ref: '#/components/schemas/ADDMISSION-VIEW'
+                  - $ref: '#/components/schemas/ADMISSION'
+                  - $ref: '#/components/schemas/ADMISSION-VIEW'
                   - $ref: '#/components/schemas/PATHWAY-VIEW'
                   - $ref: '#/components/schemas/DOC'
                   - $ref: '#/components/schemas/DOC-VIEW'
@@ -833,13 +833,13 @@ components:
         * The appointment outcome has been recorded as Did Not Attend. 
         #### Notes:
         * This event is expected to be sourced from PEP's trust integrations rather than user activity.
-    ADDMISSION:
+    ADMISSION:
       type: object
       properties:
         EventCode:
           type: string
           enum:
-            - ADDMISSION
+            - ADMISSION
         Timestamp:
           type: string
           format: date-time
@@ -895,7 +895,7 @@ components:
         * PEPs
         #### Description:
         * The Inpatient admission entity to which which all other admissions events will be linked via Appointment ID. This event must be sent when a new inpatient admission is created or an existing inpatient admission is updated.
-    ADDMISSION-VIEW:
+    ADMISSION-VIEW:
       type: object
       properties:
         EventCode:
