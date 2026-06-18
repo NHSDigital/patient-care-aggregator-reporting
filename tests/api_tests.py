@@ -68,6 +68,8 @@ async def test_wait_for_status(api_client: APISessionClient, api_test_config: AP
 
     is_deployed = partial(_is_deployed, api_test_config=api_test_config)
 
+    print(env.status_endpoint_api_key())
+
     await poll_until(
         make_request=lambda: api_client.get('_status', headers={'apikey': env.status_endpoint_api_key()}),
         until=is_deployed,
