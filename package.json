@@ -9,6 +9,9 @@
   },
   "author": "NHS Digital",
   "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "homepage": "https://github.com/NHSDigital/patient-care-aggregator-reporting",
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.39.1",
