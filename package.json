@@ -18,5 +18,8 @@
     "@openapitools/openapi-generator-cli": "^2.39.1",
     "license-checker-rseidelsohn": "^5.0.1",
     "minimist": "^1.2.8"
+  },
+  "overrides": {
+    "shell-quote": "^1.9.0"
   }
 }
