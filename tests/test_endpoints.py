@@ -15,7 +15,7 @@ class TestEndpoints:
 
     @pytest.fixture()
     async def test_app_and_product(self):
-        """Create a fresh test app and product consuming the patient-care-agregator-api proxy
+        """Create a fresh test app and product consuming the patient-care-aggregator-reporting proxy
         The app and products are destroyed at the end of the test
         """
         print("\nCreating Default App and Product..")
@@ -25,7 +25,7 @@ class TestEndpoints:
             [config.PROXY_NAME, f"identity-service-{config.ENVIRONMENT}"]
         )
         await apigee_product.update_scopes(
-            ["urn:nhsd:apim:user-nhs-login:P9:patient-care-aggregator-api"]
+            ["urn:nhsd:apim:app:level3:patient-care-aggregator-reporting"]
         )
         # Product ratelimit
         product_ratelimit = {
@@ -107,7 +107,7 @@ class TestEndpoints:
             data={
                 "grant_type": "client_credentials",
                 "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-                "clientId": "wcissOGs8C3Y1Js6qDD3zhJf9SuhwrG4",
+                "clientId": test_app.client_id,
                 "client_assertion": client_assertion,
                 "header": additional_headers,
                 "algorithm": "RS512"
@@ -120,9 +120,23 @@ class TestEndpoints:
         # Given I have a token
         token = get_token
         expected_status_code = 200
-        proxy_url = f"https://internal-dev.api.service.nhs.uk/{config.ENV['base_path']}/status"
+        proxy_url = f"https://internal-dev.api.service.nhs.uk/{config.ENV['base_path']}"
+        print(f'Proxy URL: {proxy_url}')
         # When calling the proxy
-        headers = {"Authorization": f"Bearer {token}"}
-        resp = SESSION.get(url=proxy_url, headers=headers)
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "X-Correlation-ID": "apim-unit-test",
+            "client-id": "apim-unit-test"
+        }
+        payload = [
+            {
+                "EventCode": "APPT-VIEW",
+                "Timestamp": "2023-08-22T11:00:00+00:00",
+                "SessionId": "apim-unit-test",
+                "AppointmentId": "apim-unit-test"
+            }
+        ]
+        resp = SESSION.post(url=proxy_url, headers=headers, json=payload)
+        print(f'Proxy response: {resp.json()}')
         # Then
         assert resp.status_code == expected_status_code
