@@ -13,7 +13,7 @@
         <LoadBalancer>
             <Server name="patient-care-aggregator-reporting" />
         </LoadBalancer>
-        <Path>/aggregator/status</Path>
+        <Path>/status</Path>
     </HTTPTargetConnection>
     <Timeout>20000</Timeout>
 </ServiceCallout>
