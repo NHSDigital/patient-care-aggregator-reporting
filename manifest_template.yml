@@ -4,29 +4,16 @@ DESCRIPTION: example description
 APIGEE_ENVIRONMENTS:
   - name: internal-dev
     display_name: Internal Development
-    has_mock_auth: true
-  - name: internal-qa
-    display_name: Internal QA
-    has_mock_auth: true 
   - name: ref
     display_name: Reference
     has_mock_auth: true
-# Enable environments when ready by uncommenting:
-  # - name: internal-dev-sandbox
-  #   display_name: Internal Development Sandbox
-  #   portal_visibility: false
-  # - name: internal-qa
-  #   display_name: Internal QA
-  #   has_mock_auth: true
-  #   portal_visibility: false
-  # - name: internal-qa-sandbox
-  #   display_name: Internal QA Sandbox
-  #   portal_visibility: false
-  # - name: sandbox
-  #   display_name: Sandbox
-  #   portal_visibility: false
-  # - name: int
-  #   display_name: Integration Testing
+  - name: int
+    display_name: Integration Testing
+    has_mock_auth: true
+  - name: prod
+    display_name: Production
+    has_mock_auth: false
+    approval_type: manual    
 ---
 meta:
   api:
@@ -53,18 +40,18 @@ apigee:
             value:
               {{ NAME }}:
                 quota:
+                  enabled: false
+                spikeArrest:
+                  enabled: false
+              app:
+                quota:
                   enabled: true
-                  limit: 300
+                  limit: 30000 # 500 requests per second
                   interval: 1
                   timeunit: minute
                 spikeArrest:
                   enabled: true
-                  ratelimit: 600pm # 10 requests per second
-              app:
-                quota:
-                  enabled: false
-                spikeArrest:
-                  enabled: false
+                  ratelimit: 60000pm # 1000 requests per second
         description: {{ DESCRIPTION }}
         displayName: {{ TITLE }}
         environments: [ {{ ENV.name }} ]
@@ -77,6 +64,7 @@ apigee:
         scopes:
           - 'urn:nhsd:apim:app:level3:{{ SERVICE_NAME }}'
           - 'urn:nhsd:apim:user-nhs-cis2:aal3:{{ SERVICE_NAME }}'
+          - 'urn:nhsd:apim:user-nhs-login:P9:{{ SERVICE_NAME }}'
     specs:
       - name: {{ NAME }}
         path: {{ SERVICE_NAME }}.json
